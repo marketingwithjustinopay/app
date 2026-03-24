@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exclusive NanoCanvas AI Bonuses - Limited Time Offer</title>
+    <style>
+        :root {
+            --primary: #6C3CE1;
+            --primary-dark: #5028C6;
+            --accent: #FF6B35;
+            --accent-dark: #E55A25;
+            --dark: #1A1A2E;
+            --darker: #0F0F1E;
+            --light: #F8F9FC;
+            --gray: #6B7280;
+            --success: #10B981;
+            --gold: #F59E0B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--darker);
+            color: #E2E8F0;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .hero {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 50%, #1E1145 100%);
+            padding: 60px 20px 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(108, 60, 225, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, rgba(255, 107, 53, 0.08) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), #FF8F5E);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 24px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(255, 107, 53, 0.6); }
+        }
+
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--primary), #A78BFA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: #94A3B8;
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .total-value {
+            background: rgba(108, 60, 225, 0.15);
+            border: 1px solid rgba(108, 60, 225, 0.3);
+            border-radius: 16px;
+            padding: 20px 40px;
+            display: inline-block;
+            margin-bottom: 32px;
+        }
+
+        .total-value .label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #A78BFA;
+            margin-bottom: 4px;
+        }
+
+        .total-value .amount {
+            font-size: 48px;
+            font-weight: 800;
+            color: white;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white;
+            padding: 18px 48px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 24px rgba(255, 107, 53, 0.4);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.5);
+        }
+
+        .cta-sub {
+            display: block;
+            font-size: 13px;
+            font-weight: 400;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        /* Bonuses Section */
+        .bonuses-section {
+            max-width: 900px;
+            margin: -40px auto 0;
+            padding: 0 20px 60px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .bonus-card {
+            background: linear-gradient(135deg, #1E1E36 0%, #252547 100%);
+            border: 1px solid rgba(108, 60, 225, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .bonus-card:hover {
+            border-color: rgba(108, 60, 225, 0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .bonus-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(108, 60, 225, 0.08) 0%, transparent 70%);
+        }
+
+        .bonus-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .bonus-value {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--gold);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .bonus-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .bonus-card .description {
+            color: #94A3B8;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .bonus-features {
+            list-style: none;
+            display: grid;
+            gap: 10px;
+        }
+
+        .bonus-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 15px;
+            color: #CBD5E1;
+        }
+
+        .bonus-features li::before {
+            content: '\2713';
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            height: 22px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* How to Claim */
+        .claim-section {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px 60px;
+        }
+
+        .claim-box {
+            background: linear-gradient(135deg, #1E1E36 0%, #252547 100%);
+            border: 1px solid rgba(108, 60, 225, 0.2);
+            border-radius: 20px;
+            padding: 48px;
+            text-align: center;
+        }
+
+        .claim-box h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 32px;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        .step {
+            text-align: center;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            font-size: 24px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .step h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .step p {
+            font-size: 14px;
+            color: #94A3B8;
+        }
+
+        /* Urgency Bar */
+        .urgency-bar {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            text-align: center;
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* Footer CTA */
+        .footer-cta {
+            text-align: center;
+            padding: 60px 20px 80px;
+            background: linear-gradient(180deg, var(--darker) 0%, var(--dark) 100%);
+        }
+
+        .footer-cta h2 {
+            font-size: 36px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .footer-cta p {
+            color: #94A3B8;
+            font-size: 18px;
+            margin-bottom: 32px;
+        }
+
+        .disclaimer {
+            max-width: 700px;
+            margin: 40px auto 0;
+            font-size: 12px;
+            color: #64748B;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .hero { padding: 40px 16px 60px; }
+            .bonus-card { padding: 28px 20px; }
+            .bonus-value { position: static; margin-bottom: 12px; display: inline-block; }
+            .claim-box { padding: 32px 20px; }
+            .total-value { padding: 16px 24px; }
+            .total-value .amount { font-size: 36px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Urgency Bar -->
+    <div class="urgency-bar">
+        These exclusive bonuses are only available for a LIMITED TIME when you grab NanoCanvas AI through this page
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">Exclusive Bonus Package</div>
+            <h1>Get NanoCanvas AI + These <span>10 Premium Bonuses</span> FREE</h1>
+            <p>Supercharge your NanoCanvas AI experience with these hand-picked bonuses designed to maximize your results</p>
+
+            <div class="total-value">
+                <div class="label">Total Bonus Value</div>
+                <div class="amount">$2,485</div>
+            </div>
+
+            <br><br>
+
+            <a href="https://getnanocanvasai.com/jv" class="cta-button">
+                Get NanoCanvas AI + All Bonuses Now
+                <span class="cta-sub">Instant access to all bonuses after purchase</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Bonuses Section -->
+    <section class="bonuses-section">
+
+        <!-- Bonus 1 -->
+        <div class="bonus-card">
+            <div class="bonus-number">1</div>
+            <span class="bonus-value">Value: $297</span>
+            <h3>AI Image Prompt Mastery Guide</h3>
+            <p class="description">The ultimate guide to crafting perfect AI image prompts. Get 500+ ready-to-use prompt templates organized by niche so you can generate stunning, professional-grade visuals every single time.</p>
+            <ul class="bonus-features">
+                <li>500+ proven prompt templates for logos, ads, social media, product mockups, and more</li>
+                <li>Niche-specific prompt packs: e-commerce, real estate, fitness, restaurants, coaching</li>
+                <li>Advanced prompt engineering techniques (style modifiers, negative prompts, aspect ratios)</li>
+                <li>Cheat sheet for combining prompts with NanoCanvas AI for best results</li>
+            </ul>
+        </div>
+
+        <!-- Bonus 2 -->
+        <div class="bonus-card">
+            <div class="bonus-number">2</div>
+            <span class="bonus-value">Value: $397</span>
+            <h3>AI Graphics Agency Business Blueprint</h3>
+            <p class="description">A complete step-by-step business blueprint for launching your own AI graphics agency. Start selling AI-generated designs on Day 1 using NanoCanvas AI as your secret weapon.</p>
+            <ul class="bonus-features">
+                <li>Done-for-you agency website template with client intake forms</li>
+                <li>Pricing guide: how to charge $200-$1,000+ per project</li>
+                <li>Client acquisition playbook with cold email and social media outreach scripts</li>
+                <li>Service package templates (logo design, social media kits, brand identity packages)</li>
+            </ul>
+        </div>
+
+        <!-- Bonus 3 -->
+        <div class="bonus-card">
+            <div class="bonus-number">3</div>
+            <span class="bonus-value">Value: $197</span>
+            <h3>Social Media Content Calendar + AI Visuals Toolkit</h3>
+            <p class="description">90-day content calendar with AI image ideas for every post. Never run out of content ideas again -- each day comes with a prompt you can paste directly into NanoCanvas AI.</p>
+            <ul class="bonus-features">
+                <li>90-day content calendar with daily post ideas and matching image prompts</li>
+                <li>Platform-specific sizing guide (Instagram, Facebook, TikTok, LinkedIn, Pinterest)</li>
+                <li>30 viral post templates with AI-generated visual concepts</li>
+                <li>Hashtag and caption strategy guide for maximum engagement</li>
+            </ul>
+        </div>
+
+        <!-- Bonus 4 -->
+        <div class="bonus-card">
+            <div class="bonus-number">4</div>
+            <span class="bonus-value">Value: $297</span>
+            <h3>Print-on-Demand Profits with AI Art</h3>
+            <p class="description">Turn your NanoCanvas AI creations into passive income. This complete guide shows you how to sell AI-generated art on print-on-demand platforms like Redbubble, Merch by Amazon, and Etsy.</p>
+            <ul class="bonus-features">
+                <li>Step-by-step setup guides for 5 top POD platforms</li>
+                <li>50 trending design niches with example prompts that sell</li>
+                <li>Image optimization guide for t-shirts, mugs, posters, phone cases, and more</li>
+                <li>SEO and listing optimization strategies to get found and make sales</li>
+            </ul>
+        </div>
+
+        <!-- Bonus 5 -->
+        <div class="bonus-card">
+            <div class="bonus-number">5</div>
+            <span class="bonus-value">Value: $197</span>
+            <h3>AI-Powered Logo Design Masterclass</h3>
+            <p class="description">Create professional logos in minutes, not days. Learn the exact techniques to generate logos that look like they were made by a $5,000 designer using AI tools.</p>
+            <ul class="bonus-features">
+                <li>Logo design principles every AI creator must know</li>
+                <li>100+ logo prompt formulas organized by style (minimalist, vintage, modern, playful)</li>
+                <li>Post-processing tips to refine AI logos into polished, client-ready designs</li>
+                <li>How to create complete brand kits (logo + colors + typography) with AI</li>
+            </ul>
+        </div>
+
+        <!-- Bonus 6 -->
+        <div class="bonus-card">
+            <div class="bonus-number">6</div>
+            <span class="bonus-value">Value: $247</span>
+            <h3>Stock Image Empire: Sell AI Art Online</h3>
+            <p class="description">Build a library of AI-generated stock images and sell them on platforms like Adobe Stock, Shutterstock, and Freepik. This guide covers everything from creation to passive income.</p>
+            <ul class="bonus-features">
+                <li>Which stock platforms accept AI art and how to get approved</li>
+                <li>Top 50 most-searched stock image categories with matching AI prompts</li>
+                <li>Batch creation workflow to produce 100+ images per day</li>
+                <li>Metadata and keywording strategy for maximum discoverability and sales</li>
+            </ul>
+        </div>
+
+        <!-- Bonus 7 -->
+        <div class="bonus-card">
+            <div class="bonus-number">7</div>
+            <span class="bonus-value">Value: $197</span>
+            <h3>E-Commerce Product Image Toolkit</h3>
+            <p class="description">Create scroll-stopping product images for your online store. Learn how to use AI to generate professional product photos, lifestyle shots, and ad creatives that convert.</p>
+            <ul class="bonus-features">
+                <li>Product photography prompts for Amazon, Shopify, and Etsy listings</li>
+                <li>Background removal and scene-setting techniques using AI</li>
+                <li>A/B testing guide: which AI-generated images convert best</li>
+                <li>Templates for product mockups, infographics, and comparison images</li>
+            </ul>
+        </div>
+
+        <!-- Bonus 8 -->
+        <div class="bonus-card">
+            <div class="bonus-number">8</div>
+            <span class="bonus-value">Value: $197</span>
+            <h3>YouTube Thumbnail Domination Pack</h3>
+            <p class="description">Create click-worthy YouTube thumbnails that skyrocket your views. Includes proven thumbnail formulas, AI prompt templates, and a complete training on thumbnail psychology.</p>
+            <ul class="bonus-features">
+                <li>25 high-CTR thumbnail templates you can recreate with AI in minutes</li>
+                <li>Color psychology and text overlay strategies for maximum clicks</li>
+                <li>Niche-specific thumbnail formulas (tech, finance, gaming, lifestyle, tutorials)</li>
+                <li>Before/after case studies showing 2x-5x view increases from better thumbnails</li>
+            </ul>
+        </div>
+
+        <!-- Bonus 9 -->
+        <div class="bonus-card">
+            <div class="bonus-number">9</div>
+            <span class="bonus-value">Value: $247</span>
+            <h3>Digital Product Design Suite</h3>
+            <p class="description">Create and sell digital products using AI-generated graphics. Covers ebook covers, course graphics, lead magnets, workbook designs, and presentation templates you can sell on Gumroad or Etsy.</p>
+            <ul class="bonus-features">
+                <li>Templates for ebook covers, workbooks, planners, and lead magnets</li>
+                <li>How to create Canva-style templates using AI-generated elements</li>
+                <li>Pricing and sales strategies for digital product marketplaces</li>
+                <li>Bundle creation guide: how to package multiple designs for higher-ticket offers</li>
+            </ul>
+        </div>
+
+        <!-- Bonus 10 -->
+        <div class="bonus-card">
+            <div class="bonus-number">10</div>
+            <span class="bonus-value">Value: $212</span>
+            <h3>AI Image Monetization Rolodex</h3>
+            <p class="description">A curated directory of 100+ platforms, marketplaces, and freelancing sites where you can sell AI-generated images and design services today. Includes payout details, requirements, and tips for each.</p>
+            <ul class="bonus-features">
+                <li>100+ verified platforms that pay for AI-generated images and designs</li>
+                <li>Freelance marketplace profiles (Fiverr, Upwork, 99designs) setup walkthroughs</li>
+                <li>Payout comparison chart so you know where to focus for maximum income</li>
+                <li>Monthly income tracker spreadsheet to monitor your AI design revenue</li>
+            </ul>
+        </div>
+
+    </section>
+
+    <!-- How to Claim -->
+    <section class="claim-section">
+        <div class="claim-box">
+            <h2>How to Claim Your Bonuses</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4>Click the Button</h4>
+                    <p>Click any orange button on this page to go to the NanoCanvas AI sales page</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4>Purchase NanoCanvas AI</h4>
+                    <p>Complete your purchase through the official sales page</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4>Email Your Receipt</h4>
+                    <p>Forward your purchase receipt to claim your bonuses</p>
+                </div>
+            </div>
+            <a href="https://getnanocanvasai.com/jv" class="cta-button">
+                Get NanoCanvas AI + All Bonuses Now
+                <span class="cta-sub">Limited time only - bonuses can be removed at any time</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="footer-cta">
+        <h2>Don't Miss Out on $2,485 in Bonuses</h2>
+        <p>These bonuses are exclusively available when you purchase NanoCanvas AI through this page</p>
+        <a href="https://getnanocanvasai.com/jv" class="cta-button">
+            Claim NanoCanvas AI + Bonuses Now
+            <span class="cta-sub">Your bonuses will be delivered instantly after purchase</span>
+        </a>
+        <p class="disclaimer">
+            Disclaimer: This bonus page is operated independently. NanoCanvas AI is a third-party product.
+            Results may vary. All bonus materials are delivered digitally after proof of purchase.
+            The total value is based on comparable market pricing for similar resources.
+        </p>
+    </section>
+
+</body>
+</html>
