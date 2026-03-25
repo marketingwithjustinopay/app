@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonus #4: Print-on-Demand Profits with AI Art - NanoCanvas AI</title>
+    <style>
+        :root { --primary: #6C3CE1; --primary-dark: #5028C6; --accent: #FF6B35; --accent-dark: #E55A25; --dark: #1A1A2E; --darker: #0F0F1E; --success: #10B981; --gold: #F59E0B; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--darker); color: #E2E8F0; line-height: 1.6; }
+        .back-link { display: inline-block; padding: 16px 20px; color: #A78BFA; text-decoration: none; font-size: 14px; font-weight: 600; transition: color 0.3s; }
+        .back-link:hover { color: white; }
+        .hero { background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 50%, #1E1145 100%); padding: 60px 20px 80px; text-align: center; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 30% 50%, rgba(108,60,225,0.1) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(255,107,53,0.08) 0%, transparent 50%); }
+        .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+        .badge { display: inline-block; background: linear-gradient(135deg, var(--accent), #FF8F5E); color: white; padding: 8px 24px; border-radius: 50px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 24px; }
+        .hero h1 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; color: white; margin-bottom: 16px; line-height: 1.2; }
+        .hero h1 span { background: linear-gradient(135deg, var(--primary), #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 20px; color: #94A3B8; max-width: 600px; margin: 0 auto 32px; }
+        .value-badge { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: var(--gold); padding: 10px 24px; border-radius: 50px; font-size: 18px; font-weight: 700; display: inline-block; margin-bottom: 32px; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: white; padding: 18px 48px; border-radius: 12px; font-size: 20px; font-weight: 700; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 24px rgba(255,107,53,0.4); }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(255,107,53,0.5); }
+        .cta-sub { display: block; font-size: 13px; font-weight: 400; opacity: 0.9; margin-top: 4px; }
+        .content-section { max-width: 800px; margin: -40px auto 0; padding: 0 20px 60px; position: relative; z-index: 2; }
+        .content-card { background: linear-gradient(135deg, #1E1E36 0%, #252547 100%); border: 1px solid rgba(108,60,225,0.2); border-radius: 20px; padding: 40px; margin-bottom: 24px; }
+        .content-card h2 { font-size: 28px; font-weight: 700; color: white; margin-bottom: 20px; }
+        .content-card h3 { font-size: 20px; font-weight: 700; color: #A78BFA; margin: 24px 0 12px; }
+        .content-card p { color: #94A3B8; font-size: 16px; margin-bottom: 16px; }
+        .feature-list { list-style: none; display: grid; gap: 12px; margin-bottom: 20px; }
+        .feature-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: #CBD5E1; }
+        .feature-list li::before { content: '\2713'; display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; background: rgba(16,185,129,0.15); color: var(--success); border-radius: 50%; font-size: 12px; font-weight: 700; }
+        .highlight-box { background: rgba(108,60,225,0.1); border: 1px solid rgba(108,60,225,0.25); border-radius: 12px; padding: 24px; margin: 24px 0; }
+        .highlight-box h4 { color: #A78BFA; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .highlight-box p { color: #CBD5E1; margin-bottom: 0; }
+        .footer-cta { text-align: center; padding: 60px 20px 80px; background: linear-gradient(180deg, var(--darker) 0%, var(--dark) 100%); }
+        .footer-cta h2 { font-size: 32px; font-weight: 800; color: white; margin-bottom: 16px; }
+        .footer-cta p { color: #94A3B8; font-size: 18px; margin-bottom: 32px; }
+        .disclaimer { max-width: 700px; margin: 40px auto 0; font-size: 12px; color: #64748B; text-align: center; line-height: 1.8; }
+        @media (max-width: 640px) { .hero { padding: 40px 16px 60px; } .content-card { padding: 28px 20px; } }
+    </style>
+</head>
+<body>
+
+    <a href="../../index.html" class="back-link">&larr; Back to All Bonuses</a>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">Bonus #4</div>
+            <h1><span>Print-on-Demand Profits</span> with AI Art</h1>
+            <p>Turn your NanoCanvas AI creations into passive income by selling AI-generated art on print-on-demand platforms.</p>
+            <div class="value-badge">Value: $297 - Yours FREE</div>
+            <br><br>
+            <a href="https://getnanocanvasai.com/jv" class="cta-button">
+                Get NanoCanvas AI + This Bonus Free
+                <span class="cta-sub">Instant access after purchase</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="content-card">
+            <h2>What's Inside This Bonus</h2>
+            <p>Print-on-demand is one of the easiest ways to turn AI art into real money. You create the designs, upload them to platforms that handle printing and shipping, and earn royalties on every sale. This guide shows you the complete process from first design to first dollar.</p>
+
+            <h3>Step-by-Step Platform Setup Guides</h3>
+            <ul class="feature-list">
+                <li>Redbubble: Account setup, product selection, and upload optimization walkthrough</li>
+                <li>Merch by Amazon: Application tips, tier climbing strategy, and listing best practices</li>
+                <li>Etsy: Shop setup, digital and physical product listings, and Etsy SEO</li>
+                <li>TeeSpring (Spring): Storefront creation and social selling integration</li>
+                <li>Society6: Premium art marketplace positioning and pricing strategy</li>
+            </ul>
+
+            <h3>50 Trending Design Niches</h3>
+            <ul class="feature-list">
+                <li>Evergreen niches that sell year-round (pets, hobbies, motivational, nature)</li>
+                <li>Seasonal and holiday niches with peak selling windows mapped out</li>
+                <li>Trending pop culture-adjacent niches that capture search traffic</li>
+                <li>Example AI prompts for each niche so you can start creating immediately</li>
+                <li>Niche research method to discover untapped opportunities on your own</li>
+            </ul>
+
+            <h3>Image Optimization for Products</h3>
+            <ul class="feature-list">
+                <li>Resolution and DPI requirements for t-shirts, mugs, posters, phone cases, and stickers</li>
+                <li>Transparent background techniques for designs that look professional on any product</li>
+                <li>Color profile management to ensure your designs print accurately</li>
+                <li>Template files with safe zones for each major product type</li>
+            </ul>
+
+            <h3>SEO & Listing Optimization</h3>
+            <ul class="feature-list">
+                <li>Keyword research strategies specific to print-on-demand marketplaces</li>
+                <li>Title and tag formulas that rank higher in platform search results</li>
+                <li>Description templates that convert browsers into buyers</li>
+                <li>Pricing strategies that maximize both sales volume and profit margins</li>
+            </ul>
+
+            <div class="highlight-box">
+                <h4>True Passive Income Potential</h4>
+                <p>Once your designs are uploaded, they can sell 24/7 with zero additional work from you. Many POD sellers earn $500-$5,000+ per month from designs they uploaded months ago. With NanoCanvas AI, you can create designs at 10x the speed of traditional methods.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="footer-cta">
+        <h2>Get This Bonus Free with NanoCanvas AI</h2>
+        <p>Purchase NanoCanvas AI through our link and get this $297 POD profits guide completely free</p>
+        <a href="https://getnanocanvasai.com/jv" class="cta-button">
+            Claim NanoCanvas AI + All 10 Bonuses
+            <span class="cta-sub">Limited time only - bonuses can be removed at any time</span>
+        </a>
+        <p class="disclaimer">Disclaimer: This bonus page is operated independently. NanoCanvas AI is a third-party product. Results may vary. All bonus materials are delivered digitally after proof of purchase.</p>
+    </section>
+
+</body>
+</html>

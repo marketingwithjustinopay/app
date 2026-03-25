@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonus #7: E-Commerce Product Image Toolkit - NanoCanvas AI</title>
+    <style>
+        :root { --primary: #6C3CE1; --primary-dark: #5028C6; --accent: #FF6B35; --accent-dark: #E55A25; --dark: #1A1A2E; --darker: #0F0F1E; --success: #10B981; --gold: #F59E0B; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--darker); color: #E2E8F0; line-height: 1.6; }
+        .back-link { display: inline-block; padding: 16px 20px; color: #A78BFA; text-decoration: none; font-size: 14px; font-weight: 600; transition: color 0.3s; }
+        .back-link:hover { color: white; }
+        .hero { background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 50%, #1E1145 100%); padding: 60px 20px 80px; text-align: center; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 30% 50%, rgba(108,60,225,0.1) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(255,107,53,0.08) 0%, transparent 50%); }
+        .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+        .badge { display: inline-block; background: linear-gradient(135deg, var(--accent), #FF8F5E); color: white; padding: 8px 24px; border-radius: 50px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 24px; }
+        .hero h1 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; color: white; margin-bottom: 16px; line-height: 1.2; }
+        .hero h1 span { background: linear-gradient(135deg, var(--primary), #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 20px; color: #94A3B8; max-width: 600px; margin: 0 auto 32px; }
+        .value-badge { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: var(--gold); padding: 10px 24px; border-radius: 50px; font-size: 18px; font-weight: 700; display: inline-block; margin-bottom: 32px; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: white; padding: 18px 48px; border-radius: 12px; font-size: 20px; font-weight: 700; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 24px rgba(255,107,53,0.4); }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(255,107,53,0.5); }
+        .cta-sub { display: block; font-size: 13px; font-weight: 400; opacity: 0.9; margin-top: 4px; }
+        .content-section { max-width: 800px; margin: -40px auto 0; padding: 0 20px 60px; position: relative; z-index: 2; }
+        .content-card { background: linear-gradient(135deg, #1E1E36 0%, #252547 100%); border: 1px solid rgba(108,60,225,0.2); border-radius: 20px; padding: 40px; margin-bottom: 24px; }
+        .content-card h2 { font-size: 28px; font-weight: 700; color: white; margin-bottom: 20px; }
+        .content-card h3 { font-size: 20px; font-weight: 700; color: #A78BFA; margin: 24px 0 12px; }
+        .content-card p { color: #94A3B8; font-size: 16px; margin-bottom: 16px; }
+        .feature-list { list-style: none; display: grid; gap: 12px; margin-bottom: 20px; }
+        .feature-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: #CBD5E1; }
+        .feature-list li::before { content: '\2713'; display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; background: rgba(16,185,129,0.15); color: var(--success); border-radius: 50%; font-size: 12px; font-weight: 700; }
+        .highlight-box { background: rgba(108,60,225,0.1); border: 1px solid rgba(108,60,225,0.25); border-radius: 12px; padding: 24px; margin: 24px 0; }
+        .highlight-box h4 { color: #A78BFA; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .highlight-box p { color: #CBD5E1; margin-bottom: 0; }
+        .footer-cta { text-align: center; padding: 60px 20px 80px; background: linear-gradient(180deg, var(--darker) 0%, var(--dark) 100%); }
+        .footer-cta h2 { font-size: 32px; font-weight: 800; color: white; margin-bottom: 16px; }
+        .footer-cta p { color: #94A3B8; font-size: 18px; margin-bottom: 32px; }
+        .disclaimer { max-width: 700px; margin: 40px auto 0; font-size: 12px; color: #64748B; text-align: center; line-height: 1.8; }
+        @media (max-width: 640px) { .hero { padding: 40px 16px 60px; } .content-card { padding: 28px 20px; } }
+    </style>
+</head>
+<body>
+
+    <a href="../../index.html" class="back-link">&larr; Back to All Bonuses</a>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">Bonus #7</div>
+            <h1>E-Commerce <span>Product Image</span> Toolkit</h1>
+            <p>Create scroll-stopping product images for your online store that convert browsers into buyers using AI.</p>
+            <div class="value-badge">Value: $197 - Yours FREE</div>
+            <br><br>
+            <a href="https://getnanocanvasai.com/jv" class="cta-button">
+                Get NanoCanvas AI + This Bonus Free
+                <span class="cta-sub">Instant access after purchase</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="content-card">
+            <h2>What's Inside This Bonus</h2>
+            <p>Product images are the #1 factor in online purchase decisions. Professional product photography typically costs $50-$500 per image. With NanoCanvas AI and this toolkit, you can create product visuals that rival professional shoots for a fraction of the cost.</p>
+
+            <h3>Product Photography Prompts by Platform</h3>
+            <ul class="feature-list">
+                <li>Amazon: White background product shots, lifestyle images, and infographic templates that meet A+ content guidelines</li>
+                <li>Shopify: Hero images, collection banners, product detail shots, and lifestyle photography</li>
+                <li>Etsy: Styled flat lays, in-context lifestyle photos, and handmade aesthetic visuals</li>
+                <li>Platform-specific image size requirements and optimization tips</li>
+                <li>Prompt templates customizable for any product category</li>
+            </ul>
+
+            <h3>Background & Scene Setting Techniques</h3>
+            <ul class="feature-list">
+                <li>Clean white background generation for professional product-on-white shots</li>
+                <li>Lifestyle scene creation: place products in realistic environments using AI</li>
+                <li>Seasonal and holiday background swaps for timely marketing campaigns</li>
+                <li>Studio lighting simulation for professional-grade product photography looks</li>
+                <li>Color coordination techniques to match backgrounds with brand aesthetics</li>
+            </ul>
+
+            <h3>A/B Testing Guide for Product Images</h3>
+            <ul class="feature-list">
+                <li>Which types of AI-generated product images convert best (data-backed insights)</li>
+                <li>How to set up image A/B tests on Amazon, Shopify, and Etsy</li>
+                <li>Key metrics to track: click-through rate, add-to-cart rate, and conversion rate</li>
+                <li>Image variation strategies to test angles, backgrounds, and styling</li>
+            </ul>
+
+            <h3>Templates for Marketing Assets</h3>
+            <ul class="feature-list">
+                <li>Product mockup templates for social media ads and promotional materials</li>
+                <li>Infographic templates to highlight product features and specifications</li>
+                <li>Comparison image layouts to position your product against competitors</li>
+                <li>Bundle and multi-product display templates for cross-selling</li>
+            </ul>
+
+            <div class="highlight-box">
+                <h4>Save Thousands on Product Photography</h4>
+                <p>A single product photography session can cost $500-$2,000. With this toolkit and NanoCanvas AI, you can create unlimited product images for every SKU in your catalog, saving thousands while maintaining professional quality.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="footer-cta">
+        <h2>Get This Bonus Free with NanoCanvas AI</h2>
+        <p>Purchase NanoCanvas AI through our link and get this $197 e-commerce toolkit completely free</p>
+        <a href="https://getnanocanvasai.com/jv" class="cta-button">
+            Claim NanoCanvas AI + All 10 Bonuses
+            <span class="cta-sub">Limited time only - bonuses can be removed at any time</span>
+        </a>
+        <p class="disclaimer">Disclaimer: This bonus page is operated independently. NanoCanvas AI is a third-party product. Results may vary. All bonus materials are delivered digitally after proof of purchase.</p>
+    </section>
+
+</body>
+</html>

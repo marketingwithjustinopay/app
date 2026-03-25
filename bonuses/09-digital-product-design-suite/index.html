@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonus #9: Digital Product Design Suite - NanoCanvas AI</title>
+    <style>
+        :root { --primary: #6C3CE1; --primary-dark: #5028C6; --accent: #FF6B35; --accent-dark: #E55A25; --dark: #1A1A2E; --darker: #0F0F1E; --success: #10B981; --gold: #F59E0B; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--darker); color: #E2E8F0; line-height: 1.6; }
+        .back-link { display: inline-block; padding: 16px 20px; color: #A78BFA; text-decoration: none; font-size: 14px; font-weight: 600; transition: color 0.3s; }
+        .back-link:hover { color: white; }
+        .hero { background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 50%, #1E1145 100%); padding: 60px 20px 80px; text-align: center; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 30% 50%, rgba(108,60,225,0.1) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(255,107,53,0.08) 0%, transparent 50%); }
+        .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+        .badge { display: inline-block; background: linear-gradient(135deg, var(--accent), #FF8F5E); color: white; padding: 8px 24px; border-radius: 50px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 24px; }
+        .hero h1 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; color: white; margin-bottom: 16px; line-height: 1.2; }
+        .hero h1 span { background: linear-gradient(135deg, var(--primary), #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 20px; color: #94A3B8; max-width: 600px; margin: 0 auto 32px; }
+        .value-badge { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: var(--gold); padding: 10px 24px; border-radius: 50px; font-size: 18px; font-weight: 700; display: inline-block; margin-bottom: 32px; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, var(--accent), var(--accent-dark)); color: white; padding: 18px 48px; border-radius: 12px; font-size: 20px; font-weight: 700; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 24px rgba(255,107,53,0.4); }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(255,107,53,0.5); }
+        .cta-sub { display: block; font-size: 13px; font-weight: 400; opacity: 0.9; margin-top: 4px; }
+        .content-section { max-width: 800px; margin: -40px auto 0; padding: 0 20px 60px; position: relative; z-index: 2; }
+        .content-card { background: linear-gradient(135deg, #1E1E36 0%, #252547 100%); border: 1px solid rgba(108,60,225,0.2); border-radius: 20px; padding: 40px; margin-bottom: 24px; }
+        .content-card h2 { font-size: 28px; font-weight: 700; color: white; margin-bottom: 20px; }
+        .content-card h3 { font-size: 20px; font-weight: 700; color: #A78BFA; margin: 24px 0 12px; }
+        .content-card p { color: #94A3B8; font-size: 16px; margin-bottom: 16px; }
+        .feature-list { list-style: none; display: grid; gap: 12px; margin-bottom: 20px; }
+        .feature-list li { display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: #CBD5E1; }
+        .feature-list li::before { content: '\2713'; display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; background: rgba(16,185,129,0.15); color: var(--success); border-radius: 50%; font-size: 12px; font-weight: 700; }
+        .highlight-box { background: rgba(108,60,225,0.1); border: 1px solid rgba(108,60,225,0.25); border-radius: 12px; padding: 24px; margin: 24px 0; }
+        .highlight-box h4 { color: #A78BFA; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .highlight-box p { color: #CBD5E1; margin-bottom: 0; }
+        .footer-cta { text-align: center; padding: 60px 20px 80px; background: linear-gradient(180deg, var(--darker) 0%, var(--dark) 100%); }
+        .footer-cta h2 { font-size: 32px; font-weight: 800; color: white; margin-bottom: 16px; }
+        .footer-cta p { color: #94A3B8; font-size: 18px; margin-bottom: 32px; }
+        .disclaimer { max-width: 700px; margin: 40px auto 0; font-size: 12px; color: #64748B; text-align: center; line-height: 1.8; }
+        @media (max-width: 640px) { .hero { padding: 40px 16px 60px; } .content-card { padding: 28px 20px; } }
+    </style>
+</head>
+<body>
+
+    <a href="../../index.html" class="back-link">&larr; Back to All Bonuses</a>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">Bonus #9</div>
+            <h1><span>Digital Product</span> Design Suite</h1>
+            <p>Create and sell digital products with AI-generated graphics -- ebook covers, course materials, lead magnets, and more.</p>
+            <div class="value-badge">Value: $247 - Yours FREE</div>
+            <br><br>
+            <a href="https://getnanocanvasai.com/jv" class="cta-button">
+                Get NanoCanvas AI + This Bonus Free
+                <span class="cta-sub">Instant access after purchase</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="content-card">
+            <h2>What's Inside This Bonus</h2>
+            <p>Digital products are one of the highest-margin businesses you can build. The biggest barrier? Creating professional-looking designs. This suite removes that barrier entirely with AI-powered templates and workflows for every type of digital product.</p>
+
+            <h3>Templates for Every Digital Product Type</h3>
+            <ul class="feature-list">
+                <li>Ebook covers: fiction, non-fiction, self-help, business, and technical book designs</li>
+                <li>Workbook and planner pages: layouts for daily planners, habit trackers, and journals</li>
+                <li>Lead magnet designs: checklists, cheat sheets, quick-start guides, and resource lists</li>
+                <li>Course graphics: module headers, lesson thumbnails, certificate designs, and slide templates</li>
+                <li>Presentation templates: pitch decks, webinar slides, and workshop materials</li>
+            </ul>
+
+            <h3>Creating Canva-Style Templates with AI</h3>
+            <ul class="feature-list">
+                <li>How to generate AI backgrounds and design elements that work as template components</li>
+                <li>Layering techniques to combine AI-generated visuals with editable text areas</li>
+                <li>Creating consistent design systems across multiple templates for brand cohesion</li>
+                <li>How to package AI-generated templates for sale as editable Canva templates</li>
+                <li>Template marketplaces where you can sell your AI-enhanced designs</li>
+            </ul>
+
+            <h3>Pricing & Sales Strategies</h3>
+            <ul class="feature-list">
+                <li>Market research techniques to price your digital products competitively</li>
+                <li>Platform comparison: Gumroad vs Etsy vs Creative Market vs Payhip</li>
+                <li>Listing optimization for each marketplace to maximize visibility and sales</li>
+                <li>Launch strategy template to generate initial sales and reviews quickly</li>
+                <li>Email marketing sequences for promoting digital products to your audience</li>
+            </ul>
+
+            <h3>Bundle Creation for Higher-Ticket Offers</h3>
+            <ul class="feature-list">
+                <li>How to package individual designs into bundles that command 3-5x higher prices</li>
+                <li>Bundle naming and positioning strategies that communicate premium value</li>
+                <li>Upsell and cross-sell techniques to maximize revenue per customer</li>
+                <li>Seasonal and themed bundle ideas for year-round sales opportunities</li>
+            </ul>
+
+            <div class="highlight-box">
+                <h4>Unlimited Inventory, Zero Production Cost</h4>
+                <p>Unlike physical products, digital products have zero cost of goods. Every sale after the first is pure profit. With NanoCanvas AI creating your designs, you can build an entire digital product store in days instead of months.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="footer-cta">
+        <h2>Get This Bonus Free with NanoCanvas AI</h2>
+        <p>Purchase NanoCanvas AI through our link and get this $247 digital product suite completely free</p>
+        <a href="https://getnanocanvasai.com/jv" class="cta-button">
+            Claim NanoCanvas AI + All 10 Bonuses
+            <span class="cta-sub">Limited time only - bonuses can be removed at any time</span>
+        </a>
+        <p class="disclaimer">Disclaimer: This bonus page is operated independently. NanoCanvas AI is a third-party product. Results may vary. All bonus materials are delivered digitally after proof of purchase.</p>
+    </section>
+
+</body>
+</html>
