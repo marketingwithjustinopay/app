@@ -10,7 +10,7 @@ A set of small, self contained self development web apps. Each one is a single H
 
 The set is intended to be sold or bundled, so every app must stand alone and must not look like a recolored copy of the others.
 
-**Current status: 6 shipped, more in the queue.**
+**Current status: 7 shipped, more in the queue.**
 
 ---
 
@@ -73,7 +73,7 @@ const store = {
 
 Nothing else in the app changes. Keep the `async` signatures so the call sites stay identical.
 
-Each app owns one storage key, namespaced and versioned: `blueprint:v1`, `switchback:v1`, `longhand:v1`, `thegap:v1`, `counterweight:v1`, `carryover:v1`. All state batched into that one key, never one key per record.
+Each app owns one storage key, namespaced and versioned: `blueprint:v1`, `switchback:v1`, `longhand:v1`, `thegap:v1`, `counterweight:v1`, `carryover:v1`, `goodhours:v1`. All state batched into that one key, never one key per record.
 
 ---
 
@@ -151,9 +151,12 @@ Do not reuse these palettes, type pairings, or signature devices.
 - **Signature:** the drag tail. Every stalled item carries a row of notches, one per week it has survived, the newest in clay, so an item that has been dragging a month is longer and louder than one that showed up on Tuesday. Three weeks or more and it is marked overdue.
 - **Storage key:** `carryover:v1`
 
----
-
-## 7. Build queue
+### 7. `good-hours.html`, deep work sessions
+- **Job:** attention. State the task and the reason, run the block, then rate how the focus actually went.
+- **Palette:** sky `#DFE9F2`, card `#FBFDFF`, ink `#0E1A24`, mute `#6A8095`, pulse `#D6255E`
+- **Type:** Darker Grotesque 800 display, Rubik body, Space Mono utility
+- **Signature:** the hour band. Twenty four tracks, one per hour of the day. Every block lands on the hour it started, the column height is how often you work then and the pink gets darker the deeper the focus was, so your good hours surface without you deciding anything about them. A running block survives a reload, pause included.
+- **Storage key:** `goodhours:v1`
 
 Pick the next unbuilt item. Concepts are fixed, the visual identity is yours to invent within the rules in section 5.
 
@@ -161,7 +164,7 @@ Pick the next unbuilt item. Concepts are fixed, the visual identity is yours to 
 
 **6. Weekly review. BUILT, shipped as `carryover.html`.** Sunday retro. What moved, what stalled, what you learned, what you will drop. Carries forward unfinished items so the person sees how long something has been dragging.
 
-**7. Deep work sessions.** Timer plus intention logging. Before each block you state what you are doing and why. Afterward you rate the focus. Builds a record of when your good hours actually are.
+**7. Deep work sessions. BUILT, shipped as `good-hours.html`.** Timer plus intention logging. Before each block you state what you are doing and why. Afterward you rate the focus. Builds a record of when your good hours actually are.
 
 **8. Evidence log.** A counter to negative self talk. You log specific evidence of progress, tagged by area. Signature idea: it plays evidence back to you on days you log nothing.
 

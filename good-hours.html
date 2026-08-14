@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Hours</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@700;800&family=Rubik:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* ---------------------------------------------------------------
+     Good Hours, deep work blocks with an intention and a verdict.
+     Wordmark: one text node in .wordmark.
+     Colors: the five tokens in :root.
+     Storage: one key, see KEY in the script.
+  ----------------------------------------------------------------*/
+  :root{
+    --sky:#DFE9F2;
+    --card:#FBFDFF;
+    --ink:#0E1A24;
+    --mute:#6A8095;
+    --pulse:#D6255E;
+
+    --display:"Darker Grotesque", "Haettenschweiler", Impact, sans-serif;
+    --body:"Rubik", "Helvetica Neue", Arial, sans-serif;
+    --mono:"Space Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    --edge:1px solid color-mix(in srgb, var(--ink) 13%, var(--card));
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--sky);
+    color:var(--ink);
+    font-family:var(--body);
+    font-size:15.5px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:20px 14px 56px;
+  }
+  .wrap{max-width:544px;margin:0 auto;}
+  h1,h2{margin:0;font-family:var(--display);font-weight:800;line-height:0.95;letter-spacing:-0.01em;}
+  p{margin:0;}
+  button{font:inherit;color:inherit;}
+  :is(button,input,textarea):focus-visible{outline:3px solid var(--pulse);outline-offset:2px;border-radius:2px;}
+  .mono{font-family:var(--mono);font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;}
+
+  .head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px;}
+  .wordmark{font-size:clamp(44px,14vw,62px);}
+  .clock{color:var(--mute);text-align:right;}
+
+  .card{
+    background:var(--card);
+    border:var(--edge);
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:12px;
+  }
+  .card h2{font-size:26px;margin-bottom:2px;}
+  .say{color:var(--mute);font-size:14px;}
+
+  /* intention ----------------------------------------------------- */
+  .field-label{display:block;color:var(--mute);margin:14px 0 3px;}
+  .field{
+    width:100%;font-family:var(--body);font-size:16px;color:var(--ink);
+    background:transparent;border:0;border-bottom:2px solid color-mix(in srgb, var(--ink) 15%, var(--card));
+    padding:5px 0 7px;
+  }
+  .field:focus{border-bottom-color:var(--pulse);}
+  .field::placeholder{color:color-mix(in srgb, var(--mute) 65%, var(--card));}
+  textarea.field{resize:none;overflow:hidden;min-height:28px;line-height:1.5;}
+
+  .lengths{display:flex;gap:8px;margin-top:16px;}
+  .len{
+    flex:1;padding:11px 4px;border-radius:10px;cursor:pointer;
+    background:transparent;border:2px solid color-mix(in srgb, var(--ink) 13%, var(--card));
+    font-family:var(--mono);font-size:12px;
+    transition:border-color .15s ease, background-color .15s ease;
+  }
+  .len:hover{border-color:var(--mute);}
+  .len[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--card);}
+
+  .go{
+    width:100%;margin-top:16px;padding:15px;border:0;border-radius:10px;
+    background:var(--pulse);color:#fff;cursor:pointer;
+    font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:0.01em;
+    transition:background-color .15s ease;
+  }
+  .go:hover:not(:disabled){background:color-mix(in srgb, var(--pulse) 84%, var(--ink));}
+  .go:disabled{background:color-mix(in srgb, var(--mute) 35%, var(--card));color:var(--mute);cursor:default;}
+
+  /* running ------------------------------------------------------- */
+  .live{background:var(--ink);border-color:var(--ink);color:var(--card);text-align:center;}
+  .live .what{font-size:17px;line-height:1.35;}
+  .live .why{color:color-mix(in srgb, var(--card) 58%, var(--ink));font-size:14px;margin-top:4px;}
+  .count{
+    font-family:var(--display);font-weight:800;
+    font-size:clamp(84px,30vw,124px);line-height:0.86;
+    letter-spacing:-0.03em;margin:12px 0 2px;
+    font-variant-numeric:tabular-nums;
+  }
+  .count.done{color:var(--pulse);}
+  .count.held{color:color-mix(in srgb, var(--card) 50%, var(--ink));}
+  .of{color:color-mix(in srgb, var(--card) 55%, var(--ink));}
+  .controls{display:flex;gap:8px;margin-top:16px;}
+  .ctl{
+    flex:1;padding:12px;border-radius:10px;cursor:pointer;
+    background:transparent;border:2px solid color-mix(in srgb, var(--card) 30%, var(--ink));
+    color:var(--card);font-family:var(--mono);font-size:12px;
+    transition:border-color .15s ease, background-color .15s ease;
+  }
+  .ctl:hover{border-color:var(--card);}
+  .ctl.primary{background:var(--pulse);border-color:var(--pulse);}
+
+  /* rating -------------------------------------------------------- */
+  .rates{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .rate{
+    display:flex;align-items:center;gap:12px;
+    padding:13px 14px;border-radius:10px;cursor:pointer;text-align:left;
+    background:transparent;border:2px solid color-mix(in srgb, var(--ink) 13%, var(--card));
+    transition:border-color .15s ease;
+  }
+  .rate:hover{border-color:var(--pulse);}
+  .rate .chip{flex:0 0 auto;width:26px;height:26px;border-radius:7px;}
+  .rate b{display:block;font-weight:500;}
+  .rate span{color:var(--mute);font-size:13.5px;}
+  .r1{background:color-mix(in srgb, var(--pulse) 20%, var(--card));}
+  .r2{background:color-mix(in srgb, var(--pulse) 55%, var(--card));}
+  .r3{background:var(--pulse);}
+
+  /* the hour band, signature element ------------------------------- */
+  .band-card{padding-bottom:16px;}
+  .band{
+    display:flex;align-items:flex-end;gap:2px;
+    height:96px;margin-top:14px;
+  }
+  .hour{
+    flex:1;min-width:0;height:100%;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    border-radius:3px;
+    background:color-mix(in srgb, var(--ink) 4%, var(--card));
+  }
+  .fill{border-radius:3px;transition:height .2s ease;}
+  .hour.none .fill{height:3px;background:color-mix(in srgb, var(--ink) 12%, var(--card));}
+  .ticks{display:flex;justify-content:space-between;margin-top:6px;color:var(--mute);}
+  .verdict{
+    margin-top:14px;padding-top:14px;border-top:var(--edge);
+    font-size:17px;line-height:1.4;
+  }
+  .verdict b{color:var(--pulse);font-weight:500;}
+  .key{display:flex;gap:12px;margin-top:10px;color:var(--mute);align-items:center;}
+  .key i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+
+  /* log ------------------------------------------------------------ */
+  .log h2{font-size:24px;}
+  .entry{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-top:var(--edge);}
+  .entry:first-of-type{border-top:0;}
+  .swatch{flex:0 0 auto;width:10px;height:38px;border-radius:3px;margin-top:2px;}
+  .entry .body{flex:1;min-width:0;}
+  .entry .when{color:var(--mute);}
+  .entry .task{line-height:1.35;}
+  .entry .note{color:var(--mute);font-size:13.5px;}
+  .x{
+    flex:0 0 auto;width:26px;height:26px;border:0;border-radius:6px;background:transparent;
+    color:color-mix(in srgb, var(--mute) 80%, var(--card));font-size:16px;line-height:1;cursor:pointer;
+  }
+  .x:hover{color:var(--pulse);background:color-mix(in srgb, var(--pulse) 9%, var(--card));}
+  .blank{color:var(--mute);font-style:italic;padding-top:6px;}
+
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;padding:0 2px;}
+  .status{color:var(--mute);}
+  .wipe{
+    background:transparent;border:1px solid color-mix(in srgb, var(--ink) 18%, var(--sky));
+    border-radius:8px;padding:8px 12px;color:var(--mute);cursor:pointer;
+    font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;
+  }
+  .wipe:hover{color:var(--pulse);border-color:var(--pulse);}
+  .wipe.armed{background:var(--pulse);border-color:var(--pulse);color:#fff;}
+
+  .hidden{display:none;}
+
+  @media (max-width:380px){
+    body{padding-left:10px;padding-right:10px;}
+    .card{padding:15px;}
+    .band{height:80px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="head">
+    <h1 class="wordmark">Good Hours</h1>
+    <p class="clock mono" id="nowLabel"></p>
+  </header>
+
+  <!-- set the block ------------------------------------------------ -->
+  <section class="card" id="setup">
+    <h2>Set the block</h2>
+    <p class="say">Say what you are doing and why before the clock starts.</p>
+
+    <label class="field-label mono" for="what">What you are doing</label>
+    <input id="what" class="field" type="text" autocomplete="off" placeholder="Draft the second chapter">
+
+    <label class="field-label mono" for="why">Why it matters</label>
+    <textarea id="why" class="field" rows="1" placeholder="It is the only part nobody else can write"></textarea>
+
+    <div class="lengths" id="lengths" role="group" aria-label="Block length">
+      <button class="len" type="button" data-min="25" aria-pressed="false">25 min</button>
+      <button class="len" type="button" data-min="50" aria-pressed="true">50 min</button>
+      <button class="len" type="button" data-min="90" aria-pressed="false">90 min</button>
+    </div>
+
+    <button class="go" id="start" type="button" disabled>Start the block</button>
+  </section>
+
+  <!-- running ------------------------------------------------------- -->
+  <section class="card live hidden" id="running" aria-live="polite">
+    <p class="what" id="liveWhat"></p>
+    <p class="why" id="liveWhy"></p>
+    <p class="count" id="count">00:00</p>
+    <p class="of mono" id="ofLabel"></p>
+    <div class="controls">
+      <button class="ctl" id="hold" type="button">Pause</button>
+      <button class="ctl primary" id="finish" type="button">End the block</button>
+    </div>
+  </section>
+
+  <!-- rating --------------------------------------------------------- -->
+  <section class="card hidden" id="rating">
+    <h2>How was it</h2>
+    <p class="say" id="ratingWhat"></p>
+    <div class="rates">
+      <button class="rate" type="button" data-rate="1">
+        <span class="chip r1" aria-hidden="true"></span>
+        <span><b>Scattered</b><span>Kept leaving the work.</span></span>
+      </button>
+      <button class="rate" type="button" data-rate="2">
+        <span class="chip r2" aria-hidden="true"></span>
+        <span><b>Steady</b><span>Worked, with effort.</span></span>
+      </button>
+      <button class="rate" type="button" data-rate="3">
+        <span class="chip r3" aria-hidden="true"></span>
+        <span><b>Deep</b><span>Lost track of the time.</span></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- the hour band --------------------------------------------------- -->
+  <section class="card band-card">
+    <h2>Your hours</h2>
+    <p class="say">Every block sits on the hour it started. Darker means deeper.</p>
+    <div class="band" id="band"></div>
+    <div class="ticks mono"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>11p</span></div>
+    <p class="verdict" id="verdict"></p>
+    <p class="key mono">
+      <span><i class="r1"></i>scattered</span>
+      <span><i class="r2"></i>steady</span>
+      <span><i class="r3"></i>deep</span>
+    </p>
+  </section>
+
+  <!-- log -------------------------------------------------------------- -->
+  <section class="card log">
+    <h2>Blocks</h2>
+    <div id="logList"></div>
+    <p class="blank" id="logBlank">No blocks yet. Set one and start the clock.</p>
+  </section>
+
+  <div class="foot">
+    <span class="status mono" id="status" role="status" aria-live="polite"></span>
+    <button class="wipe" id="wipe" type="button">Erase all</button>
+  </div>
+
+</div>
+
+<script>
+const KEY = "goodhours:v1";
+
+/* Storage block for the Claude artifact preview.
+   For a self hosted copy, swap this one object for the localStorage
+   version in the brief. Nothing else changes. */
+const store = {
+  async load(){
+    try{
+      const raw = await window.storage.getItem(KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return null;
+  },
+  async save(d){
+    try{ await window.storage.setItem(KEY, JSON.stringify(d)); }
+    catch(e){ console.error("Could not save", e); }
+  }
+};
+
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const filled = s => (s || "").trim().length > 0;
+
+let data = {
+  draft:{ what:"", why:"", minutes:50 },
+  run:null,      /* a block in progress, so a reload does not lose it */
+  pending:null,  /* a finished block waiting for its rating */
+  sessions:[]
+};
+let ticker = null;
+
+/* ---------------------------------------------------------------
+   Time helpers
+---------------------------------------------------------------- */
+function clockLabel(h){
+  const ampm = h < 12 ? "am" : "pm";
+  const twelve = h % 12 === 0 ? 12 : h % 12;
+  return twelve + ampm;
+}
+function stamp(ms){
+  const d = new Date(ms);
+  const mins = String(d.getMinutes()).padStart(2,"0");
+  const h = d.getHours();
+  const day = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][d.getDay()];
+  return day + " " + (h % 12 === 0 ? 12 : h % 12) + ":" + mins + (h < 12 ? "am" : "pm");
+}
+function mmss(sec){
+  const s = Math.max(0, Math.round(sec));
+  return String(Math.floor(s / 60)).padStart(2,"0") + ":" + String(s % 60).padStart(2,"0");
+}
+
+/* ---------------------------------------------------------------
+   Save
+---------------------------------------------------------------- */
+let saveTimer = null, statusTimer = null;
+function save(msg){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    await store.save(data);
+    if(msg !== false) say(msg || "Saved");
+  }, 300);
+}
+function say(text){
+  $("status").textContent = text;
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { $("status").textContent = ""; }, 2200);
+}
+
+function fit(ta){
+  ta.style.height = "auto";
+  ta.style.height = Math.max(ta.scrollHeight, 28) + "px";
+}
+
+/* ---------------------------------------------------------------
+   Screens
+---------------------------------------------------------------- */
+function screen(){
+  const running = !!data.run;
+  const rating = !running && !!data.pending;
+  $("setup").classList.toggle("hidden", running || rating);
+  $("running").classList.toggle("hidden", !running);
+  $("rating").classList.toggle("hidden", !rating);
+
+  if(running){
+    $("liveWhat").textContent = data.run.what;
+    $("liveWhy").textContent = data.run.why;
+    $("hold").textContent = data.run.heldAt ? "Resume" : "Pause";
+    $("ofLabel").textContent = data.run.minutes + " minute block";
+    tick();
+    if(!ticker) ticker = setInterval(tick, 500);
+  }else{
+    clearInterval(ticker);
+    ticker = null;
+    document.title = "Good Hours";
+  }
+  if(rating) $("ratingWhat").textContent = data.pending.what;
+}
+
+function remaining(){
+  const r = data.run;
+  if(!r) return 0;
+  const now = r.heldAt || Date.now();
+  return (r.endsAt - now) / 1000;
+}
+
+function tick(){
+  const left = remaining();
+  const node = $("count");
+  const over = left <= 0;
+  node.textContent = over ? mmss(-left) : mmss(left);
+  node.classList.toggle("done", over);
+  node.classList.toggle("held", !!data.run.heldAt);
+  $("ofLabel").textContent = over
+    ? "over by, end it when you are ready"
+    : data.run.heldAt ? "paused" : data.run.minutes + " minute block";
+  document.title = (over ? "+" : "") + node.textContent + " Good Hours";
+}
+
+/* ---------------------------------------------------------------
+   The hour band. Every block lands on the hour it started, so the
+   shape of your day shows up without you deciding anything about it.
+---------------------------------------------------------------- */
+function buckets(){
+  const b = Array.from({length:24}, () => ({ n:0, sum:0, mins:0 }));
+  data.sessions.forEach(s => {
+    const h = new Date(s.start).getHours();
+    b[h].n += 1;
+    b[h].sum += s.rating;
+    b[h].mins += s.minutes;
+  });
+  return b;
+}
+
+function renderBand(){
+  const b = buckets();
+  const most = Math.max(1, ...b.map(x => x.n));
+  const host = $("band");
+  host.textContent = "";
+
+  b.forEach((x, h) => {
+    const col = document.createElement("div");
+    col.className = "hour" + (x.n ? "" : " none");
+    const fill = document.createElement("div");
+    fill.className = "fill";
+    if(x.n){
+      const avg = x.sum / x.n;
+      const strength = 18 + Math.round(((avg - 1) / 2) * 82);
+      fill.style.background = "color-mix(in srgb, var(--pulse) " + strength + "%, var(--card))";
+      fill.style.height = Math.max(14, Math.round((x.n / most) * 100)) + "%";
+      col.title = clockLabel(h) + ", " + x.n + (x.n === 1 ? " block, " : " blocks, ") + x.mins + " min";
+    }
+    col.appendChild(fill);
+    host.appendChild(col);
+  });
+
+  renderVerdict(b);
+}
+
+function renderVerdict(b){
+  const node = $("verdict");
+  const total = data.sessions.length;
+  if(total === 0){
+    node.textContent = "Log a few blocks and your good hours will show up here.";
+    return;
+  }
+  if(total < 4){
+    node.textContent = total + (total === 1 ? " block logged. " : " blocks logged. ") +
+      "A pattern needs about four.";
+    return;
+  }
+  const ranked = b.map((x, h) => ({ h, n:x.n, avg: x.n ? x.sum / x.n : 0 }))
+                  .filter(x => x.n > 0)
+                  .sort((a,c) => (c.avg - a.avg) || (c.n - a.n));
+  const best = ranked.slice(0, Math.min(3, ranked.length)).filter(x => x.avg >= 2);
+  const worst = ranked[ranked.length - 1];
+  if(!best.length){
+    node.textContent = "No hour has gone deep yet. Try a different time of day.";
+    return;
+  }
+  const names = best.map(x => clockLabel(x.h));
+  const list = names.length === 1 ? names[0]
+             : names.slice(0,-1).join(", ") + " and " + names[names.length-1];
+  node.innerHTML = "Your best work lands at <b>" + list + "</b>." +
+    (worst && worst.avg < 2 ? " Your weakest hour so far is " + clockLabel(worst.h) + "." : "");
+}
+
+/* ---------------------------------------------------------------
+   Log
+---------------------------------------------------------------- */
+function renderLog(){
+  const host = $("logList");
+  host.textContent = "";
+  const list = data.sessions.slice().sort((a,b) => b.start - a.start);
+  $("logBlank").hidden = list.length > 0;
+
+  list.forEach(s => {
+    const row = document.createElement("div");
+    row.className = "entry";
+
+    const sw = document.createElement("span");
+    sw.className = "swatch r" + s.rating;
+    sw.setAttribute("aria-hidden","true");
+    row.appendChild(sw);
+
+    const body = document.createElement("div");
+    body.className = "body";
+    const when = document.createElement("p");
+    when.className = "when mono";
+    when.textContent = stamp(s.start) + " · " + s.minutes + " min · " + ["scattered","steady","deep"][s.rating - 1];
+    const task = document.createElement("p");
+    task.className = "task";
+    task.textContent = s.what;
+    body.appendChild(when);
+    body.appendChild(task);
+    if(filled(s.why)){
+      const why = document.createElement("p");
+      why.className = "note";
+      why.textContent = s.why;
+      body.appendChild(why);
+    }
+    row.appendChild(body);
+
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "x";
+    x.textContent = "×";
+    x.setAttribute("aria-label", "Remove the block from " + stamp(s.start));
+    x.addEventListener("click", () => {
+      data.sessions = data.sessions.filter(o => o.id !== s.id);
+      renderLog(); renderBand(); save("Block removed");
+    });
+    row.appendChild(x);
+
+    host.appendChild(row);
+  });
+}
+
+/* ---------------------------------------------------------------
+   Render
+---------------------------------------------------------------- */
+function renderAll(){
+  $("what").value = data.draft.what;
+  $("why").value = data.draft.why;
+  fit($("why"));
+  document.querySelectorAll(".len").forEach(b => {
+    b.setAttribute("aria-pressed", String(Number(b.dataset.min) === data.draft.minutes));
+  });
+  $("start").disabled = !filled(data.draft.what);
+  const now = new Date();
+  $("nowLabel").textContent = "it is " + clockLabel(now.getHours()) +
+    (now.getMinutes() > 30 ? " and change" : "");
+  screen();
+  renderBand();
+  renderLog();
+}
+
+/* ---------------------------------------------------------------
+   Events
+---------------------------------------------------------------- */
+$("what").addEventListener("input", e => {
+  data.draft.what = e.target.value;
+  $("start").disabled = !filled(data.draft.what);
+  save(false);
+});
+$("why").addEventListener("input", e => {
+  data.draft.why = e.target.value;
+  fit(e.target);
+  save(false);
+});
+document.querySelectorAll(".len").forEach(btn => {
+  btn.addEventListener("click", () => {
+    data.draft.minutes = Number(btn.dataset.min);
+    document.querySelectorAll(".len").forEach(b => {
+      b.setAttribute("aria-pressed", String(b === btn));
+    });
+    save(false);
+  });
+});
+
+$("start").addEventListener("click", () => {
+  if(!filled(data.draft.what)) return;
+  const now = Date.now();
+  data.run = {
+    what: data.draft.what.trim(),
+    why: data.draft.why.trim(),
+    minutes: data.draft.minutes,
+    startedAt: now,
+    endsAt: now + data.draft.minutes * 60000,
+    heldAt: null
+  };
+  screen();
+  save("Clock running");
+});
+
+$("hold").addEventListener("click", () => {
+  const r = data.run;
+  if(!r) return;
+  if(r.heldAt){
+    r.endsAt += Date.now() - r.heldAt;
+    r.heldAt = null;
+    say("Back on");
+  }else{
+    r.heldAt = Date.now();
+    say("Paused");
+  }
+  screen();
+  save(false);
+});
+
+$("finish").addEventListener("click", () => {
+  const r = data.run;
+  if(!r) return;
+  const end = r.heldAt || Date.now();
+  const worked = Math.max(1, Math.round((end - r.startedAt) / 60000));
+  data.pending = { what:r.what, why:r.why, start:r.startedAt, minutes:worked };
+  data.run = null;
+  screen();
+  save(false);
+});
+
+document.querySelectorAll("[data-rate]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const p = data.pending;
+    if(!p) return;
+    data.sessions.push({
+      id: uid(), start:p.start, minutes:p.minutes,
+      what:p.what, why:p.why, rating:Number(btn.dataset.rate)
+    });
+    data.pending = null;
+    data.draft.what = "";
+    data.draft.why = "";
+    renderAll();
+    save("Block logged, " + p.minutes + " min");
+  });
+});
+
+let armed = false, armTimer = null;
+$("wipe").addEventListener("click", () => {
+  const btn = $("wipe");
+  if(!armed){
+    armed = true;
+    btn.textContent = "Press again";
+    btn.classList.add("armed");
+    armTimer = setTimeout(disarm, 4000);
+    return;
+  }
+  clearTimeout(armTimer);
+  disarm();
+  clearInterval(ticker); ticker = null;
+  data = { draft:{ what:"", why:"", minutes:50 }, run:null, pending:null, sessions:[] };
+  renderAll();
+  save("Erased");
+});
+function disarm(){
+  armed = false;
+  $("wipe").textContent = "Erase all";
+  $("wipe").classList.remove("armed");
+}
+
+/* ---------------------------------------------------------------
+   Boot
+---------------------------------------------------------------- */
+(async function init(){
+  const saved = await store.load();
+  if(saved && typeof saved === "object"){
+    data = {
+      draft: Object.assign({ what:"", why:"", minutes:50 }, saved.draft || {}),
+      run: saved.run || null,
+      pending: saved.pending || null,
+      sessions: Array.isArray(saved.sessions) ? saved.sessions : []
+    };
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
