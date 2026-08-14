@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tideline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Golos+Text:wght@400;500;600&family=Fragment+Mono&display=swap" rel="stylesheet">
+<style>
+  /* ---------------------------------------------------------------
+     Tideline, a week of what filled you and what drained you.
+     Wordmark: one text node in .wordmark.
+     Colors: the six tokens in :root.
+     Storage: one key, see KEY in the script.
+  ----------------------------------------------------------------*/
+  :root{
+    --wash:#EAE6EF;
+    --card:#FDFCFF;
+    --ink:#1A1626;
+    --mute:#7B7590;
+    --gain:#0E8A8A;
+    --drain:#7A2E6B;
+
+    --display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+    --body:"Golos Text", "Helvetica Neue", Arial, sans-serif;
+    --mono:"Fragment Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    --edge:1px solid color-mix(in srgb, var(--ink) 12%, var(--card));
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--wash);
+    color:var(--ink);
+    font-family:var(--body);
+    font-size:15.5px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:20px 14px 56px;
+  }
+  .wrap{max-width:548px;margin:0 auto;}
+  h1,h2{margin:0;font-family:var(--display);font-weight:800;line-height:0.92;text-transform:uppercase;}
+  p{margin:0;}
+  button{font:inherit;color:inherit;}
+  :is(button,input):focus-visible{outline:3px solid var(--ink);outline-offset:2px;border-radius:2px;}
+  .mono{font-family:var(--mono);font-size:10.5px;letter-spacing:0.04em;text-transform:uppercase;}
+
+  .top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px;}
+  .wordmark{font-size:clamp(46px,15vw,68px);letter-spacing:0.01em;}
+  .range{color:var(--mute);text-align:right;}
+
+  .card{
+    background:var(--card);border:var(--edge);border-radius:4px;
+    padding:16px;margin-bottom:12px;
+  }
+  .card h2{font-size:24px;}
+  .note{color:var(--mute);font-size:14px;margin-top:2px;}
+
+  /* the tideline, signature element -------------------------------- */
+  .chart{margin-top:16px;}
+  .week{display:flex;gap:4px;align-items:stretch;}
+  .col{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .up,.down{height:76px;display:flex;flex-direction:column;}
+  .up{justify-content:flex-end;}
+  .down{justify-content:flex-start;}
+  .brick{border-radius:2px;margin:1px 0;transition:height .2s ease;}
+  .brick.g{background:var(--gain);}
+  .brick.d{background:var(--drain);}
+  .brick:nth-child(even){opacity:0.82;}
+  .sea{
+    height:2px;background:var(--ink);
+    margin:0 -2px;
+  }
+  .daylabels{display:flex;gap:4px;margin-top:7px;}
+  .daylabels div{flex:1;min-width:0;text-align:center;color:var(--mute);}
+  .daylabels .today{color:var(--ink);font-weight:600;}
+  .nets{display:flex;gap:4px;margin-top:3px;}
+  .nets div{flex:1;min-width:0;text-align:center;font-family:var(--mono);font-size:10.5px;}
+  .nets .up{color:var(--gain);height:auto;display:block;}
+  .nets .dn{color:var(--drain);}
+  .nets .flat{color:color-mix(in srgb, var(--mute) 70%, var(--card));}
+  .readout{margin-top:14px;padding-top:13px;border-top:var(--edge);font-size:16px;line-height:1.45;}
+  .readout b{font-weight:600;}
+  .readout .g{color:var(--gain);}
+  .readout .d{color:var(--drain);}
+
+  /* logging --------------------------------------------------------- */
+  .what{
+    width:100%;font-family:var(--body);font-size:17px;color:var(--ink);
+    background:transparent;border:0;border-bottom:2px solid color-mix(in srgb, var(--ink) 16%, var(--card));
+    padding:6px 0 8px;margin-top:12px;
+  }
+  .what:focus{border-bottom-color:var(--ink);}
+  .what::placeholder{color:color-mix(in srgb, var(--mute) 65%, var(--card));}
+
+  .pickline{margin-top:14px;}
+  .pickline .mono{color:var(--mute);display:block;margin-bottom:6px;}
+  .picks{display:flex;flex-wrap:wrap;gap:6px;}
+  .pick{
+    padding:8px 12px;border-radius:3px;cursor:pointer;
+    background:transparent;border:1px solid color-mix(in srgb, var(--ink) 18%, var(--card));
+    color:var(--mute);font-size:14px;
+    transition:border-color .15s ease, background-color .15s ease, color .15s ease;
+  }
+  .pick:hover{border-color:var(--ink);color:var(--ink);}
+  .pick[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--card);}
+  .dirs{display:flex;gap:6px;}
+  .dir{flex:1;text-align:center;}
+  .dir[aria-pressed="true"][data-dir="gain"]{background:var(--gain);border-color:var(--gain);color:#fff;}
+  .dir[aria-pressed="true"][data-dir="drain"]{background:var(--drain);border-color:var(--drain);color:#fff;}
+
+  .log-btn{
+    width:100%;margin-top:16px;padding:13px;border:0;border-radius:3px;
+    background:var(--ink);color:var(--card);cursor:pointer;
+    font-family:var(--display);font-weight:800;font-size:21px;text-transform:uppercase;letter-spacing:0.02em;
+    transition:background-color .15s ease;
+  }
+  .log-btn:hover:not(:disabled){background:color-mix(in srgb, var(--ink) 82%, var(--drain));}
+  .log-btn:disabled{background:color-mix(in srgb, var(--mute) 32%, var(--card));color:var(--mute);cursor:default;}
+
+  /* the pattern ------------------------------------------------------ */
+  .pattern{display:flex;flex-direction:column;gap:18px;margin-top:14px;}
+  .half h3{
+    margin:0 0 8px;font-family:var(--mono);font-size:10.5px;font-weight:400;
+    letter-spacing:0.06em;text-transform:uppercase;color:var(--mute);
+  }
+  .prow{display:flex;align-items:center;gap:9px;padding:5px 0;}
+  .pbar{height:10px;border-radius:2px;flex:0 0 auto;min-width:4px;}
+  .half.gains .pbar{background:var(--gain);}
+  .half.drains .pbar{background:var(--drain);}
+  .plabel{flex:1;min-width:0;}
+  .pkind{color:var(--mute);font-family:var(--mono);font-size:10px;text-transform:uppercase;}
+  .pcount{color:var(--mute);font-family:var(--mono);font-size:10.5px;}
+  .blank{color:var(--mute);font-style:italic;font-size:14.5px;}
+
+  /* entries ----------------------------------------------------------- */
+  .entries .row{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:var(--edge);}
+  .entries .row:first-child{border-top:0;}
+  .mark{flex:0 0 auto;width:4px;height:26px;border-radius:2px;}
+  .mark.g{background:var(--gain);}
+  .mark.d{background:var(--drain);}
+  .entries .txt{flex:1;min-width:0;}
+  .entries .meta{color:var(--mute);font-family:var(--mono);font-size:10.5px;text-transform:uppercase;}
+  .x{
+    width:26px;height:26px;border:0;border-radius:3px;background:transparent;
+    color:color-mix(in srgb, var(--mute) 85%, var(--card));font-size:16px;line-height:1;cursor:pointer;
+  }
+  .x:hover{color:var(--drain);background:color-mix(in srgb, var(--drain) 9%, var(--card));}
+
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;}
+  .status{color:var(--mute);}
+  .wipe{
+    background:transparent;border:1px solid color-mix(in srgb, var(--ink) 18%, var(--wash));
+    border-radius:3px;padding:8px 12px;color:var(--mute);cursor:pointer;
+    font-family:var(--mono);font-size:10.5px;text-transform:uppercase;
+  }
+  .wipe:hover{color:var(--drain);border-color:var(--drain);}
+  .wipe.armed{background:var(--drain);border-color:var(--drain);color:#fff;}
+  .hidden{display:none;}
+
+  @media (min-width:460px){
+    .pattern{flex-direction:row;}
+    .half{flex:1;min-width:0;}
+  }
+  @media (max-width:380px){
+    body{padding-left:11px;padding-right:11px;}
+    .card{padding:14px;}
+    .up,.down{height:64px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1 class="wordmark">Tideline</h1>
+    <p class="range mono" id="range"></p>
+  </header>
+
+  <!-- the tideline --------------------------------------------------- -->
+  <section class="card">
+    <h2>This week</h2>
+    <p class="note">Above the line filled you. Below it drained you.</p>
+    <div class="chart">
+      <div class="week" id="week"></div>
+      <div class="daylabels mono" id="dayLabels"></div>
+      <div class="nets" id="nets"></div>
+    </div>
+    <p class="readout" id="readout"></p>
+  </section>
+
+  <!-- log ------------------------------------------------------------- -->
+  <section class="card">
+    <h2>Log one</h2>
+    <p class="note">Log it while you still remember how it felt.</p>
+
+    <input id="what" class="what" type="text" autocomplete="off"
+           placeholder="Standup, Sam, the commute, the 4pm slump" aria-label="What it was">
+
+    <div class="pickline">
+      <span class="mono">Which kind</span>
+      <div class="picks" id="kinds" role="group" aria-label="Kind"></div>
+    </div>
+
+    <div class="pickline">
+      <span class="mono">Which way</span>
+      <div class="picks dirs" id="dirs" role="group" aria-label="Direction">
+        <button class="pick dir" type="button" data-dir="gain" aria-pressed="true">Filled me</button>
+        <button class="pick dir" type="button" data-dir="drain" aria-pressed="false">Drained me</button>
+      </div>
+    </div>
+
+    <div class="pickline">
+      <span class="mono">How much</span>
+      <div class="picks" id="weights" role="group" aria-label="How much"></div>
+    </div>
+
+    <button class="log-btn" id="log" type="button" disabled>Log it</button>
+  </section>
+
+  <!-- the pattern ------------------------------------------------------ -->
+  <section class="card">
+    <h2>The pattern</h2>
+    <p class="note">Everything you have logged, added up.</p>
+    <div class="pattern">
+      <div class="half gains">
+        <h3>Fills you</h3>
+        <div id="gainList"></div>
+        <p class="blank hidden" id="gainBlank">Nothing yet.</p>
+      </div>
+      <div class="half drains">
+        <h3>Drains you</h3>
+        <div id="drainList"></div>
+        <p class="blank hidden" id="drainBlank">Nothing yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- entries ------------------------------------------------------------ -->
+  <section class="card entries">
+    <h2>Logged</h2>
+    <div id="entries"></div>
+    <p class="blank" id="entriesBlank">Nothing logged yet. Start with the last thing that changed your energy.</p>
+  </section>
+
+  <div class="foot">
+    <span class="status mono" id="status" role="status" aria-live="polite"></span>
+    <button class="wipe" id="wipe" type="button">Erase all</button>
+  </div>
+
+</div>
+
+<script>
+const KEY = "tideline:v1";
+
+/* Storage block for the Claude artifact preview.
+   For a self hosted copy, swap this one object for the localStorage
+   version in the brief. Nothing else changes. */
+const store = {
+  async load(){
+    try{
+      const raw = await window.storage.getItem(KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return null;
+  },
+  async save(d){
+    try{ await window.storage.setItem(KEY, JSON.stringify(d)); }
+    catch(e){ console.error("Could not save", e); }
+  }
+};
+
+const KINDS = [
+  { id:"person", label:"Person" },
+  { id:"task",   label:"Task" },
+  { id:"place",  label:"Place" },
+  { id:"time",   label:"Time of day" }
+];
+const WEIGHTS = [
+  { n:1, label:"A little" },
+  { n:2, label:"Some" },
+  { n:3, label:"A lot" }
+];
+const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const filled = s => (s || "").trim().length > 0;
+
+let data = {
+  draft: { what:"", kind:"task", dir:"gain", weight:2 },
+  entries: []
+};
+
+/* ---------------------------------------------------------------
+   Dates. The week runs Monday to Sunday.
+---------------------------------------------------------------- */
+function dayKey(ms){
+  const d = new Date(ms);
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function mondayOf(ms){
+  const d = new Date(ms);
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const shift = (x.getDay() + 6) % 7;
+  x.setDate(x.getDate() - shift);
+  return x;
+}
+function weekKeys(){
+  const start = mondayOf(Date.now());
+  return DAYS.map((_, i) => {
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    return dayKey(d.getTime());
+  });
+}
+function prettyKey(key){
+  const [y,m,d] = key.split("-").map(Number);
+  return d + " " + MONTHS[m-1];
+}
+
+/* ---------------------------------------------------------------
+   Save
+---------------------------------------------------------------- */
+let saveTimer = null, statusTimer = null;
+function save(msg){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    await store.save(data);
+    if(msg !== false) say(msg || "Saved");
+  }, 300);
+}
+function say(text){
+  $("status").textContent = text;
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { $("status").textContent = ""; }, 2200);
+}
+
+/* ---------------------------------------------------------------
+   The tideline. One column per day, gains stacked up off the line
+   and drains stacked down, so a week reads as a shape before it
+   reads as a list.
+---------------------------------------------------------------- */
+function renderChart(){
+  const keys = weekKeys();
+  const today = dayKey(Date.now());
+  const byDay = keys.map(k => ({
+    key: k,
+    gains: data.entries.filter(e => dayKey(e.at) === k && e.dir === "gain"),
+    drains: data.entries.filter(e => dayKey(e.at) === k && e.dir === "drain")
+  }));
+
+  const heaviest = Math.max(6, ...byDay.map(d =>
+    Math.max(sum(d.gains), sum(d.drains))
+  ));
+  const unit = 72 / heaviest;
+
+  const week = $("week");
+  week.textContent = "";
+  byDay.forEach(day => {
+    const col = document.createElement("div");
+    col.className = "col";
+
+    const up = document.createElement("div");
+    up.className = "up";
+    day.gains.forEach(e => up.appendChild(brick(e, unit, "g")));
+    col.appendChild(up);
+
+    const sea = document.createElement("div");
+    sea.className = "sea";
+    col.appendChild(sea);
+
+    const down = document.createElement("div");
+    down.className = "down";
+    day.drains.forEach(e => down.appendChild(brick(e, unit, "d")));
+    col.appendChild(down);
+
+    week.appendChild(col);
+  });
+
+  const labels = $("dayLabels");
+  labels.textContent = "";
+  const nets = $("nets");
+  nets.textContent = "";
+  byDay.forEach((day, i) => {
+    const l = document.createElement("div");
+    l.textContent = DAYS[i];
+    if(day.key === today) l.className = "today";
+    labels.appendChild(l);
+
+    const net = sum(day.gains) - sum(day.drains);
+    const n = document.createElement("div");
+    n.textContent = net === 0 ? "." : (net > 0 ? "+" + net : String(net));
+    n.className = net > 0 ? "up" : net < 0 ? "dn" : "flat";
+    nets.appendChild(n);
+  });
+
+  $("range").textContent = prettyKey(keys[0]) + " to " + prettyKey(keys[6]);
+  renderReadout(byDay);
+}
+
+function brick(e, unit, cls){
+  const b = document.createElement("div");
+  b.className = "brick " + cls;
+  b.style.height = Math.max(5, Math.round(e.weight * unit)) + "px";
+  b.title = e.what + ", " + (e.dir === "gain" ? "filled you" : "drained you");
+  return b;
+}
+function sum(list){ return list.reduce((n,e) => n + e.weight, 0); }
+
+function renderReadout(byDay){
+  const node = $("readout");
+  const g = byDay.reduce((n,d) => n + sum(d.gains), 0);
+  const d = byDay.reduce((n,x) => n + sum(x.drains), 0);
+  if(!g && !d){
+    node.textContent = "Nothing logged this week. Log the last thing that lifted you or flattened you.";
+    return;
+  }
+  const net = g - d;
+  const worst = byDay.slice().sort((a,b) => (sum(b.drains) - sum(b.gains)) - (sum(a.drains) - sum(a.gains)))[0];
+  const heavy = sum(worst.drains) > sum(worst.gains)
+    ? " The heaviest day was " + DAYS[byDay.indexOf(worst)] + "."
+    : "";
+  if(net > 0){
+    node.innerHTML = "The week is running <b class='g'>up</b>, " + g + " in and " + d + " out." + heavy;
+  }else if(net < 0){
+    node.innerHTML = "The week is running <b class='d'>down</b>, " + g + " in and " + d + " out." + heavy;
+  }else{
+    node.innerHTML = "The week is <b>level</b>, " + g + " in and " + d + " out." + heavy;
+  }
+}
+
+/* ---------------------------------------------------------------
+   The pattern, across everything logged
+---------------------------------------------------------------- */
+function renderPattern(){
+  ["gain","drain"].forEach(dir => {
+    const host = $(dir + "List");
+    const blank = $(dir + "Blank");
+    host.textContent = "";
+
+    const totals = {};
+    data.entries.filter(e => e.dir === dir).forEach(e => {
+      const key = e.kind + "|" + e.what.toLowerCase();
+      if(!totals[key]) totals[key] = { what:e.what, kind:e.kind, weight:0, n:0 };
+      totals[key].weight += e.weight;
+      totals[key].n += 1;
+    });
+
+    const list = Object.values(totals).sort((a,b) => b.weight - a.weight).slice(0, 5);
+    blank.classList.toggle("hidden", list.length > 0);
+    if(!list.length) return;
+
+    const top = list[0].weight;
+    list.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "prow";
+
+      const bar = document.createElement("span");
+      bar.className = "pbar";
+      bar.style.width = Math.max(4, Math.round((item.weight / top) * 58)) + "px";
+      bar.setAttribute("aria-hidden","true");
+      row.appendChild(bar);
+
+      const label = document.createElement("span");
+      label.className = "plabel";
+      label.textContent = item.what;
+      const kind = document.createElement("span");
+      kind.className = "pkind";
+      kind.textContent = " " + kindLabel(item.kind);
+      label.appendChild(kind);
+      row.appendChild(label);
+
+      const count = document.createElement("span");
+      count.className = "pcount";
+      count.textContent = "×" + item.n;
+      row.appendChild(count);
+
+      host.appendChild(row);
+    });
+  });
+}
+function kindLabel(id){
+  const k = KINDS.find(x => x.id === id);
+  return k ? k.label.toLowerCase() : id;
+}
+
+/* ---------------------------------------------------------------
+   Entries
+---------------------------------------------------------------- */
+function renderEntries(){
+  const host = $("entries");
+  host.textContent = "";
+  const list = data.entries.slice().sort((a,b) => b.at - a.at);
+  $("entriesBlank").hidden = list.length > 0;
+
+  list.forEach(e => {
+    const row = document.createElement("div");
+    row.className = "row";
+
+    const mark = document.createElement("span");
+    mark.className = "mark " + (e.dir === "gain" ? "g" : "d");
+    mark.setAttribute("aria-hidden","true");
+    row.appendChild(mark);
+
+    const txt = document.createElement("div");
+    txt.className = "txt";
+    const line = document.createElement("p");
+    line.textContent = e.what;
+    const meta = document.createElement("p");
+    meta.className = "meta";
+    const day = DAYS[(new Date(e.at).getDay() + 6) % 7];
+    meta.textContent = day + " · " + kindLabel(e.kind) + " · " +
+      (e.dir === "gain" ? "filled" : "drained") + " " + "•".repeat(e.weight);
+    txt.appendChild(line);
+    txt.appendChild(meta);
+    row.appendChild(txt);
+
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "x";
+    x.textContent = "×";
+    x.setAttribute("aria-label", "Remove " + e.what);
+    x.addEventListener("click", () => {
+      data.entries = data.entries.filter(o => o.id !== e.id);
+      renderAll();
+      save("Removed");
+    });
+    row.appendChild(x);
+
+    host.appendChild(row);
+  });
+}
+
+/* ---------------------------------------------------------------
+   Form
+---------------------------------------------------------------- */
+function renderPicks(){
+  const kinds = $("kinds");
+  kinds.textContent = "";
+  KINDS.forEach(k => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "pick";
+    b.textContent = k.label;
+    b.setAttribute("aria-pressed", String(data.draft.kind === k.id));
+    b.addEventListener("click", () => { data.draft.kind = k.id; renderPicks(); save(false); });
+    kinds.appendChild(b);
+  });
+
+  const weights = $("weights");
+  weights.textContent = "";
+  WEIGHTS.forEach(w => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "pick";
+    b.textContent = w.label;
+    b.setAttribute("aria-pressed", String(data.draft.weight === w.n));
+    b.addEventListener("click", () => { data.draft.weight = w.n; renderPicks(); save(false); });
+    weights.appendChild(b);
+  });
+
+  document.querySelectorAll(".dir").forEach(b => {
+    b.setAttribute("aria-pressed", String(b.dataset.dir === data.draft.dir));
+  });
+}
+
+/* ---------------------------------------------------------------
+   Render
+---------------------------------------------------------------- */
+function renderAll(){
+  $("what").value = data.draft.what;
+  $("log").disabled = !filled(data.draft.what);
+  renderPicks();
+  renderChart();
+  renderPattern();
+  renderEntries();
+}
+
+/* ---------------------------------------------------------------
+   Events
+---------------------------------------------------------------- */
+$("what").addEventListener("input", e => {
+  data.draft.what = e.target.value;
+  $("log").disabled = !filled(data.draft.what);
+  save(false);
+});
+
+document.querySelectorAll(".dir").forEach(btn => {
+  btn.addEventListener("click", () => {
+    data.draft.dir = btn.dataset.dir;
+    renderPicks();
+    save(false);
+  });
+});
+
+$("log").addEventListener("click", () => {
+  const dr = data.draft;
+  if(!filled(dr.what)) return;
+  data.entries.push({
+    id: uid(),
+    what: dr.what.trim(),
+    kind: dr.kind,
+    dir: dr.dir,
+    weight: dr.weight,
+    at: Date.now()
+  });
+  data.draft.what = "";
+  renderAll();
+  $("what").focus();
+  save(dr.dir === "gain" ? "Logged, above the line" : "Logged, below the line");
+});
+
+let armed = false, armTimer = null;
+$("wipe").addEventListener("click", () => {
+  const btn = $("wipe");
+  if(!armed){
+    armed = true;
+    btn.textContent = "Press again";
+    btn.classList.add("armed");
+    armTimer = setTimeout(disarm, 4000);
+    return;
+  }
+  clearTimeout(armTimer);
+  disarm();
+  data = { draft:{ what:"", kind:"task", dir:"gain", weight:2 }, entries:[] };
+  renderAll();
+  save("Erased");
+});
+function disarm(){
+  armed = false;
+  $("wipe").textContent = "Erase all";
+  $("wipe").classList.remove("armed");
+}
+
+/* ---------------------------------------------------------------
+   Boot
+---------------------------------------------------------------- */
+(async function init(){
+  const saved = await store.load();
+  if(saved && typeof saved === "object"){
+    data = {
+      draft: Object.assign({ what:"", kind:"task", dir:"gain", weight:2 }, saved.draft || {}),
+      entries: Array.isArray(saved.entries) ? saved.entries : []
+    };
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>

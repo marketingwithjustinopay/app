@@ -10,7 +10,7 @@ A set of small, self contained self development web apps. Each one is a single H
 
 The set is intended to be sold or bundled, so every app must stand alone and must not look like a recolored copy of the others.
 
-**Current status: 9 shipped, more in the queue.**
+**Current status: 10 shipped, more in the queue.**
 
 ---
 
@@ -73,7 +73,7 @@ const store = {
 
 Nothing else in the app changes. Keep the `async` signatures so the call sites stay identical.
 
-Each app owns one storage key, namespaced and versioned: `blueprint:v1`, `switchback:v1`, `longhand:v1`, `thegap:v1`, `counterweight:v1`, `carryover:v1`, `goodhours:v1`, `receipts:v1`, `reframe:v1`. All state batched into that one key, never one key per record.
+Each app owns one storage key, namespaced and versioned: `blueprint:v1`, `switchback:v1`, `longhand:v1`, `thegap:v1`, `counterweight:v1`, `carryover:v1`, `goodhours:v1`, `receipts:v1`, `reframe:v1`, `tideline:v1`. All state batched into that one key, never one key per record.
 
 ---
 
@@ -170,7 +170,7 @@ Pick the next unbuilt item. Concepts are fixed, the visual identity is yours to 
 
 **9. Reframe. BUILT, shipped as `reframe.html`.** Catch the thought, name the distortion, write the truer version. A short library of the common distortions built in.
 
-**10. Energy audit.** Track what drained and what filled you across a week, then show the pattern. People, tasks, places and times, split into gain and drain.
+**10. Energy audit. BUILT, shipped as `tideline.html`.** Track what drained and what filled you across a week, then show the pattern. People, tasks, places and times, split into gain and drain.
 
 **11. Backcast.** A five year picture worked backward to what happens this month. Each layer has to connect to the one above it or it does not count.
 
