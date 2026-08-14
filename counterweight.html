@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Counterweight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo:wght@700;900&family=Chivo+Mono:wght@400;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+  /* ---------------------------------------------------------------
+     Counterweight, a fear setting tool.
+     Wordmark lives in --wordmark and one text node in .wordmark.
+     Colors: the six tokens in :root below.
+     Storage: one key, see KEY in the script.
+  ----------------------------------------------------------------*/
+  :root{
+    --steel:#C6CFD4;
+    --slab:#F5F8F9;
+    --iron:#141A1D;
+    --fog:#7C8A91;
+    --anchor:#0F5B52;
+    --ember:#8E2B22;
+
+    --display:"Chivo", "Helvetica Neue", Arial, sans-serif;
+    --body:"Newsreader", Georgia, "Times New Roman", serif;
+    --mono:"Chivo Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    --r:5px;
+    --pad:18px;
+    --line:1px solid color-mix(in srgb, var(--iron) 14%, var(--slab));
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--steel);
+    color:var(--iron);
+    font-family:var(--body);
+    font-size:17px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:22px 14px 64px;
+  }
+  .wrap{max-width:552px;margin:0 auto;}
+
+  h1,h2,h3{margin:0;font-family:var(--display);font-weight:900;letter-spacing:-0.02em;line-height:1.05;}
+  p{margin:0;}
+  button{font:inherit;color:inherit;}
+
+  :is(a,button,input,textarea):focus-visible{
+    outline:3px solid var(--anchor);
+    outline-offset:2px;
+    border-radius:2px;
+  }
+
+  .mono{
+    font-family:var(--mono);
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+  }
+
+  /* masthead ---------------------------------------------------- */
+  .masthead{margin-bottom:20px;}
+  .eyebrow{color:var(--ember);}
+  .wordmark{font-size:clamp(38px,12vw,54px);margin:6px 0 8px;}
+  .wordmark span{color:var(--fog);}
+  .lede{max-width:44ch;color:color-mix(in srgb, var(--iron) 76%, var(--steel));}
+
+  /* panels ------------------------------------------------------- */
+  .panel{
+    background:var(--slab);
+    border-radius:var(--r);
+    padding:var(--pad);
+    margin-bottom:14px;
+    box-shadow:0 1px 0 color-mix(in srgb, var(--iron) 22%, transparent);
+  }
+  .panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:4px;}
+  .panel-head .h2{font-size:21px;}
+  .panel-note{color:var(--fog);font-size:15px;margin-bottom:14px;}
+  .count{color:var(--fog);white-space:nowrap;}
+
+  .label{display:block;color:var(--fog);margin-bottom:8px;}
+
+  .field{
+    width:100%;
+    font-family:var(--body);
+    font-size:17px;
+    color:var(--iron);
+    background:transparent;
+    border:0;
+    border-bottom:2px solid color-mix(in srgb, var(--iron) 18%, var(--slab));
+    padding:6px 0 8px;
+    transition:border-color .15s ease;
+  }
+  .field::placeholder{color:color-mix(in srgb, var(--fog) 70%, var(--slab));}
+  .field:focus{border-bottom-color:var(--anchor);outline-offset:4px;}
+  .decision-field{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-0.01em;}
+  textarea.field{resize:none;overflow:hidden;min-height:26px;line-height:1.45;}
+
+  /* fear cards --------------------------------------------------- */
+  .fear{
+    display:grid;
+    grid-template-columns:14px 1fr;
+    gap:0 14px;
+    padding:16px 0;
+    border-top:var(--line);
+  }
+  .rail{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:9px;}
+  .pip{
+    width:10px;height:10px;border-radius:50%;
+    border:2px solid var(--fog);
+    transition:background-color .15s ease, border-color .15s ease;
+  }
+  .pip.on{background:var(--anchor);border-color:var(--anchor);}
+  .rail-line{flex:1;width:2px;background:color-mix(in srgb, var(--fog) 35%, var(--slab));min-height:8px;}
+
+  .fear-body{min-width:0;}
+  .fear-top{display:flex;align-items:flex-start;gap:8px;}
+  .fear-top .field{flex:1;}
+  .sub{margin-top:12px;}
+  .sub .mono{display:block;color:var(--fog);margin-bottom:2px;}
+
+  .icon-btn{
+    flex:0 0 auto;
+    width:30px;height:30px;
+    display:grid;place-items:center;
+    background:transparent;
+    border:1px solid color-mix(in srgb, var(--iron) 18%, var(--slab));
+    border-radius:var(--r);
+    color:var(--fog);
+    cursor:pointer;
+    line-height:1;
+    font-size:17px;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .icon-btn:hover{color:var(--ember);border-color:var(--ember);}
+
+  .btn{
+    display:inline-block;
+    margin-top:14px;
+    padding:11px 18px;
+    background:var(--iron);
+    color:var(--slab);
+    border:0;
+    border-radius:var(--r);
+    font-family:var(--display);
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    transition:background-color .15s ease;
+  }
+  .btn:hover{background:var(--anchor);}
+  .btn.ghost{
+    background:transparent;
+    color:var(--fog);
+    border:1px solid color-mix(in srgb, var(--iron) 20%, var(--slab));
+  }
+  .btn.ghost:hover{color:var(--ember);border-color:var(--ember);background:transparent;}
+  .btn.armed{background:var(--ember);color:var(--slab);border-color:var(--ember);}
+
+  .empty{
+    color:var(--fog);
+    font-style:italic;
+    padding:14px 0 2px;
+    border-top:var(--line);
+  }
+  .hidden{display:none;}
+
+  /* cost of doing nothing ---------------------------------------- */
+  .horizon{padding-top:16px;margin-top:16px;border-top:var(--line);}
+  #horizonNear{border-top:0;padding-top:0;margin-top:6px;}
+  .horizon-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+  .horizon-head .mono{color:var(--iron);}
+  .weightper{color:var(--fog);}
+  .cost-row{display:flex;align-items:center;gap:8px;margin-top:10px;}
+  .cost-row .field{flex:1;}
+  .cost-row .tick{
+    flex:0 0 auto;width:8px;height:22px;border-radius:2px;background:var(--ember);
+  }
+  .horizon.far .cost-row .tick{height:34px;}
+
+  /* the beam, signature element ---------------------------------- */
+  .beam-panel{background:var(--iron);color:var(--slab);padding-bottom:22px;}
+  .beam-panel .h2{color:var(--slab);}
+  .beam-panel .panel-note{color:color-mix(in srgb, var(--slab) 55%, var(--iron));}
+
+  .plot{
+    position:relative;
+    height:224px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    gap:clamp(28px,14vw,72px);
+    margin-top:8px;
+    overflow:hidden;
+    transition:height .25s ease;
+  }
+  .plot.idle{height:88px;}
+  .pillar{
+    position:relative;
+    width:clamp(64px,22vw,96px);
+    display:flex;
+    flex-direction:column-reverse;
+    align-items:stretch;
+  }
+  .plate{
+    border-bottom:2px solid var(--iron);
+    border-radius:1px;
+    transition:height .25s ease;
+  }
+  .plate.open{background:var(--slab);}
+  .plate.part{background:color-mix(in srgb, var(--slab) 62%, var(--fog));}
+  .plate.planned{background:color-mix(in srgb, var(--fog) 55%, var(--iron));box-shadow:inset 4px 0 0 var(--anchor);}
+  .plate.near{background:var(--ember);}
+  .plate.far{
+    background:repeating-linear-gradient(135deg, var(--ember) 0 7px, color-mix(in srgb, var(--ember) 60%, var(--iron)) 7px 14px);
+  }
+  .stub{
+    height:3px;
+    background:color-mix(in srgb, var(--slab) 22%, var(--iron));
+  }
+  .datum{
+    position:absolute;
+    left:0;right:0;
+    border-top:1px dashed color-mix(in srgb, var(--slab) 60%, var(--iron));
+    transition:bottom .25s ease;
+    pointer-events:none;
+  }
+  .datum-tag{
+    position:absolute;
+    right:0;
+    bottom:4px;
+    color:color-mix(in srgb, var(--slab) 60%, var(--iron));
+    font-size:10px;
+  }
+  .base{height:6px;background:var(--slab);border-radius:1px;}
+  .legend{display:flex;justify-content:center;gap:clamp(28px,14vw,72px);margin-top:10px;}
+  .leg{width:clamp(64px,22vw,96px);text-align:center;}
+  .leg .mono{color:color-mix(in srgb, var(--slab) 62%, var(--iron));font-size:10px;display:block;}
+  .leg b{font-family:var(--display);font-weight:900;font-size:26px;display:block;line-height:1.2;}
+  .leg.cost b{color:var(--ember);}
+  .leg.cost.over b{color:var(--slab);}
+  .verdict{
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid color-mix(in srgb, var(--slab) 22%, var(--iron));
+    font-size:19px;
+    line-height:1.4;
+  }
+  .verdict.tipped{font-family:var(--display);font-weight:900;font-size:27px;letter-spacing:-0.02em;}
+
+  /* footer -------------------------------------------------------- */
+  .footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 2px;}
+  .status{color:var(--fog);}
+  .footer .btn{margin-top:0;}
+
+  @media (max-width:400px){
+    body{padding-left:11px;padding-right:11px;}
+    .panel{padding:15px;}
+    .wordmark{font-size:34px;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow mono">Fear setting</p>
+    <h1 class="wordmark">Counter<span>weight</span></h1>
+    <p class="lede">Name what could go wrong, plan it down, then weigh what is left against the cost of waiting.</p>
+  </header>
+
+  <section class="panel">
+    <label class="label mono" for="decision">The thing you keep putting off</label>
+    <input id="decision" class="field decision-field" type="text" autocomplete="off"
+           placeholder="Quit the job, ask for the raise, send the message">
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2 class="h2">What could go wrong</h2>
+      <span class="count mono" id="fearCount"></span>
+    </div>
+    <p class="panel-note">Each risk starts heavy. Writing a way to prevent it and a way to repair it makes it lighter.</p>
+    <div id="fearList"></div>
+    <p class="empty" id="fearEmpty">Write the worst one first, in one plain sentence.</p>
+    <button class="btn" id="addFear" type="button">Add a risk</button>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2 class="h2">The cost of doing nothing</h2>
+    </div>
+    <p class="panel-note">What waiting takes from you. Money, health, work, people, the years.</p>
+
+    <div class="horizon" id="horizonNear">
+      <div class="horizon-head">
+        <span class="mono">Six months from now</span>
+        <span class="mono weightper">counts once</span>
+      </div>
+      <div id="nearList"></div>
+      <p class="empty" id="nearEmpty">Name one thing that is worse by spring.</p>
+      <button class="btn ghost" data-add="near" type="button">Add a cost</button>
+    </div>
+
+    <div class="horizon far" id="horizonFar">
+      <div class="horizon-head">
+        <span class="mono">Three years from now</span>
+        <span class="mono weightper">counts double</span>
+      </div>
+      <div id="farList"></div>
+      <p class="empty" id="farEmpty">Name one thing that is still true in three years if nothing changes.</p>
+      <button class="btn ghost" data-add="far" type="button">Add a cost</button>
+    </div>
+  </section>
+
+  <section class="panel beam-panel">
+    <div class="panel-head">
+      <h2 class="h2">The weigh in</h2>
+    </div>
+    <p class="panel-note">Risk left after planning, against the cost of another year of this.</p>
+
+    <div class="plot" id="plot">
+      <div class="pillar" id="pillarRisk"></div>
+      <div class="pillar" id="pillarCost"></div>
+      <div class="datum" id="datum" hidden><span class="datum-tag mono">risk line</span></div>
+    </div>
+    <div class="base"></div>
+    <div class="legend">
+      <div class="leg"><b id="riskTotal">0</b><span class="mono">risk left</span></div>
+      <div class="leg cost" id="legCost"><b id="costTotal">0</b><span class="mono">cost of waiting</span></div>
+    </div>
+
+    <p class="verdict" id="verdict"></p>
+  </section>
+
+  <div class="footer">
+    <span class="status mono" id="status" role="status" aria-live="polite"></span>
+    <button class="btn ghost" id="reset" type="button">Start over</button>
+  </div>
+
+</div>
+
+<script>
+/* ---------------------------------------------------------------
+   State lives under one key, batched, versioned.
+---------------------------------------------------------------- */
+const KEY = "counterweight:v1";
+
+/* Storage block for the Claude artifact preview.
+   For a self hosted copy, swap this one object for the localStorage
+   version in the brief. Nothing else changes. */
+const store = {
+  async load(){
+    try{
+      const raw = await window.storage.getItem(KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return null;
+  },
+  async save(d){
+    try{ await window.storage.setItem(KEY, JSON.stringify(d)); }
+    catch(e){ console.error("Could not save", e); }
+  }
+};
+
+/* weights. A named risk is heavy until it has a plan on both sides. */
+const RISK_BASE = 6, PREVENT_OFF = 2, REPAIR_OFF = 2;
+const NEAR_W = 3, FAR_W = 6;
+const PLOT_H = 224, FLOOR = 24;
+
+let data = { decision:"", fears:[], near:[], far:[] };
+
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const filled = s => (s || "").trim().length > 0;
+
+const el = {
+  decision:$("decision"), fearList:$("fearList"), fearEmpty:$("fearEmpty"), fearCount:$("fearCount"),
+  nearList:$("nearList"), nearEmpty:$("nearEmpty"), farList:$("farList"), farEmpty:$("farEmpty"),
+  pillarRisk:$("pillarRisk"), pillarCost:$("pillarCost"), datum:$("datum"),
+  riskTotal:$("riskTotal"), costTotal:$("costTotal"), legCost:$("legCost"),
+  verdict:$("verdict"), status:$("status")
+};
+
+/* ---------------------------------------------------------------
+   Save
+---------------------------------------------------------------- */
+let saveTimer = null, statusTimer = null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    await store.save(data);
+    el.status.textContent = "Saved";
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => { el.status.textContent = ""; }, 1800);
+  }, 350);
+}
+
+/* ---------------------------------------------------------------
+   Weighing
+---------------------------------------------------------------- */
+function fearWeight(f){
+  let w = RISK_BASE;
+  if(filled(f.prevent)) w -= PREVENT_OFF;
+  if(filled(f.repair)) w -= REPAIR_OFF;
+  return w;
+}
+function fearState(f){
+  const planned = (filled(f.prevent) ? 1 : 0) + (filled(f.repair) ? 1 : 0);
+  return planned === 2 ? "planned" : planned === 1 ? "part" : "open";
+}
+const namedFears = () => data.fears.filter(f => filled(f.risk));
+const riskSum = () => namedFears().reduce((n,f) => n + fearWeight(f), 0);
+const costSum = () =>
+  data.near.filter(c => filled(c.text)).length * NEAR_W +
+  data.far.filter(c => filled(c.text)).length * FAR_W;
+
+/* ---------------------------------------------------------------
+   Rendering
+---------------------------------------------------------------- */
+function renderFears(){
+  el.fearList.textContent = "";
+  data.fears.forEach((f, i) => {
+    const row = document.createElement("div");
+    row.className = "fear";
+
+    const rail = document.createElement("div");
+    rail.className = "rail";
+    rail.setAttribute("aria-hidden","true");
+    [filled(f.risk), filled(f.prevent), filled(f.repair)].forEach(on => {
+      const pip = document.createElement("span");
+      pip.className = "pip" + (on ? " on" : "");
+      rail.appendChild(pip);
+    });
+    const railLine = document.createElement("span");
+    railLine.className = "rail-line";
+    rail.appendChild(railLine);
+    row.appendChild(rail);
+
+    const body = document.createElement("div");
+    body.className = "fear-body";
+
+    const top = document.createElement("div");
+    top.className = "fear-top";
+    const risk = document.createElement("input");
+    risk.type = "text";
+    risk.className = "field";
+    risk.value = f.risk;
+    risk.placeholder = "What could go wrong";
+    risk.setAttribute("aria-label", "Risk " + (i + 1) + ", what could go wrong");
+    risk.addEventListener("input", e => { f.risk = e.target.value; touch(row, f); });
+    top.appendChild(risk);
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "icon-btn";
+    del.setAttribute("aria-label", "Remove risk " + (i + 1));
+    del.textContent = "×";
+    del.addEventListener("click", () => {
+      data.fears.splice(i, 1);
+      renderFears(); renderBeam(); save();
+      (data.fears.length ? el.fearList.querySelector("input") : $("addFear")).focus();
+    });
+    top.appendChild(del);
+    body.appendChild(top);
+
+    body.appendChild(sub("Prevent it", "How do you stop this happening", f.prevent, v => { f.prevent = v; }, row, f, i, "prevention"));
+    body.appendChild(sub("Repair it", "If it happens anyway, how do you come back", f.repair, v => { f.repair = v; }, row, f, i, "repair"));
+
+    row.appendChild(body);
+    el.fearList.appendChild(row);
+  });
+  el.fearList.querySelectorAll("textarea").forEach(fit);
+
+  const named = namedFears().length;
+  const planned = namedFears().filter(f => fearState(f) === "planned").length;
+  el.fearCount.textContent = named ? planned + " of " + named + " planned" : "";
+  el.fearEmpty.classList.toggle("hidden", data.fears.length > 0);
+}
+
+/* a plan is worth writing at length, so the box grows with it */
+function fit(ta){
+  ta.style.height = "auto";
+  ta.style.height = Math.max(ta.scrollHeight, 26) + "px";
+}
+
+function sub(labelText, placeholder, value, set, row, f, i, aria){
+  const box = document.createElement("div");
+  box.className = "sub";
+  const lab = document.createElement("span");
+  lab.className = "mono";
+  lab.textContent = labelText;
+  const ta = document.createElement("textarea");
+  ta.className = "field";
+  ta.rows = 1;
+  ta.value = value;
+  ta.placeholder = placeholder;
+  ta.setAttribute("aria-label", "Risk " + (i + 1) + ", " + aria);
+  ta.addEventListener("input", e => { set(e.target.value); fit(ta); touch(row, f); });
+  box.appendChild(lab);
+  box.appendChild(ta);
+  return box;
+}
+
+/* keep the rail and the beam live while typing, without a full rerender */
+function touch(row, f){
+  const pips = row.querySelectorAll(".pip");
+  [filled(f.risk), filled(f.prevent), filled(f.repair)].forEach((on, n) => {
+    pips[n].classList.toggle("on", on);
+  });
+  const named = namedFears().length;
+  const planned = namedFears().filter(x => fearState(x) === "planned").length;
+  el.fearCount.textContent = named ? planned + " of " + named + " planned" : "";
+  renderBeam();
+  save();
+}
+
+function renderCosts(which){
+  const list = which === "near" ? el.nearList : el.farList;
+  const empty = which === "near" ? el.nearEmpty : el.farEmpty;
+  const arr = data[which];
+  const when = which === "near" ? "six months" : "three years";
+  list.textContent = "";
+
+  arr.forEach((c, i) => {
+    const row = document.createElement("div");
+    row.className = "cost-row";
+
+    const tick = document.createElement("span");
+    tick.className = "tick";
+    tick.setAttribute("aria-hidden","true");
+    row.appendChild(tick);
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "field";
+    input.value = c.text;
+    input.placeholder = which === "near" ? "What is worse by then" : "What is still true then";
+    input.setAttribute("aria-label", "Cost at " + when + ", " + (i + 1));
+    input.addEventListener("input", e => { c.text = e.target.value; renderBeam(); save(); });
+    row.appendChild(input);
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "icon-btn";
+    del.setAttribute("aria-label", "Remove cost at " + when + ", " + (i + 1));
+    del.textContent = "×";
+    del.addEventListener("click", () => {
+      arr.splice(i, 1);
+      renderCosts(which); renderBeam(); save();
+      const next = list.querySelector("input");
+      (next || document.querySelector('[data-add="' + which + '"]')).focus();
+    });
+    row.appendChild(del);
+
+    list.appendChild(row);
+  });
+
+  empty.classList.toggle("hidden", arr.length > 0);
+}
+
+/* the beam. Risk plates shrink as plans get written, cost plates pile up
+   and the three year ones count double. The dashed line is the risk total,
+   so the question is simply whether the right column clears it. */
+function renderBeam(){
+  const risk = riskSum();
+  const cost = costSum();
+  const unit = PLOT_H / Math.max(risk, cost, FLOOR);
+
+  el.pillarRisk.textContent = "";
+  namedFears().forEach(f => {
+    const p = document.createElement("div");
+    p.className = "plate " + fearState(f);
+    p.style.height = Math.max(10, fearWeight(f) * unit) + "px";
+    el.pillarRisk.appendChild(p);
+  });
+  if(!risk) el.pillarRisk.appendChild(stub());
+
+  el.pillarCost.textContent = "";
+  data.near.filter(c => filled(c.text)).forEach(() => {
+    const p = document.createElement("div");
+    p.className = "plate near";
+    p.style.height = Math.max(10, NEAR_W * unit) + "px";
+    el.pillarCost.appendChild(p);
+  });
+  data.far.filter(c => filled(c.text)).forEach(() => {
+    const p = document.createElement("div");
+    p.className = "plate far";
+    p.style.height = Math.max(14, FAR_W * unit) + "px";
+    el.pillarCost.appendChild(p);
+  });
+  if(!cost) el.pillarCost.appendChild(stub());
+
+  $("plot").classList.toggle("idle", !risk && !cost);
+  el.datum.hidden = risk === 0;
+  el.datum.style.bottom = (risk * unit) + "px";
+
+  el.riskTotal.textContent = risk;
+  el.costTotal.textContent = cost;
+  el.legCost.classList.toggle("over", cost > risk && cost > 0);
+
+  const tipped = cost > risk && cost > 0;
+  el.verdict.classList.toggle("tipped", tipped);
+  if(!risk && !cost){
+    el.verdict.textContent = "Nothing on the scale yet. Name a risk to start.";
+  }else if(!cost){
+    el.verdict.textContent = "Now count what waiting costs, six months out and three years out.";
+  }else if(!risk){
+    el.verdict.textContent = "The cost is counted. Name what you are afraid of and plan it down.";
+  }else if(tipped){
+    el.verdict.textContent = "Inaction now outweighs the risk.";
+  }else{
+    el.verdict.textContent = "The risk still weighs more. Plan the open ones down, or keep counting the cost.";
+  }
+}
+
+function stub(){
+  const s = document.createElement("div");
+  s.className = "stub";
+  s.setAttribute("aria-hidden","true");
+  return s;
+}
+
+function renderAll(){
+  el.decision.value = data.decision;
+  renderFears();
+  renderCosts("near");
+  renderCosts("far");
+  renderBeam();
+}
+
+/* ---------------------------------------------------------------
+   Events
+---------------------------------------------------------------- */
+el.decision.addEventListener("input", e => { data.decision = e.target.value; save(); });
+
+$("addFear").addEventListener("click", () => {
+  data.fears.push({ id:uid(), risk:"", prevent:"", repair:"" });
+  renderFears(); renderBeam(); save();
+  const inputs = el.fearList.querySelectorAll(".fear-top input");
+  inputs[inputs.length - 1].focus();
+});
+
+document.querySelectorAll("[data-add]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const which = btn.dataset.add;
+    data[which].push({ id:uid(), text:"" });
+    renderCosts(which); renderBeam(); save();
+    const list = which === "near" ? el.nearList : el.farList;
+    const inputs = list.querySelectorAll("input");
+    inputs[inputs.length - 1].focus();
+  });
+});
+
+let armed = false, armTimer = null;
+const resetBtn = $("reset");
+resetBtn.addEventListener("click", () => {
+  if(!armed){
+    armed = true;
+    resetBtn.textContent = "Press again to erase";
+    resetBtn.classList.add("armed");
+    armTimer = setTimeout(disarm, 4000);
+    return;
+  }
+  clearTimeout(armTimer);
+  disarm();
+  data = { decision:"", fears:[], near:[], far:[] };
+  renderAll();
+  save();
+  el.decision.focus();
+});
+function disarm(){
+  armed = false;
+  resetBtn.textContent = "Start over";
+  resetBtn.classList.remove("armed");
+}
+
+/* ---------------------------------------------------------------
+   Boot
+---------------------------------------------------------------- */
+(async function init(){
+  const saved = await store.load();
+  if(saved && typeof saved === "object"){
+    data = {
+      decision: typeof saved.decision === "string" ? saved.decision : "",
+      fears: Array.isArray(saved.fears) ? saved.fears : [],
+      near: Array.isArray(saved.near) ? saved.near : [],
+      far: Array.isArray(saved.far) ? saved.far : []
+    };
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
