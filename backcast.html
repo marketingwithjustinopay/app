@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backcast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------------------------------------------------------------
+     Backcast, a five year picture worked back to this month.
+     Wordmark: one text node in .wordmark.
+     Colors: the five tokens in :root.
+     Storage: one key, see KEY in the script.
+  ----------------------------------------------------------------*/
+  :root{
+    --gold:#E0C566;
+    --card:#FFFDF6;
+    --ink:#1E1A10;
+    --mute:#8A7B45;
+    --brick:#A32D1E;
+
+    --display:"Anton", "Arial Narrow", Impact, sans-serif;
+    --body:"Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono:"Spline Sans Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    --rail:34px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--gold);
+    color:var(--ink);
+    font-family:var(--body);
+    font-size:16px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:22px 14px 60px;
+  }
+  .wrap{max-width:544px;margin:0 auto;}
+  h1,h2{margin:0;font-family:var(--display);font-weight:400;line-height:1;text-transform:uppercase;letter-spacing:0.01em;}
+  p{margin:0;}
+  button,select{font:inherit;color:inherit;}
+  :is(button,input,textarea,select):focus-visible{outline:3px solid var(--ink);outline-offset:2px;border-radius:2px;}
+  .mono{font-family:var(--mono);font-size:10.5px;letter-spacing:0.04em;text-transform:uppercase;}
+
+  .top{margin-bottom:16px;}
+  .wordmark{font-size:clamp(44px,14vw,64px);}
+  .sub{margin-top:6px;max-width:40ch;}
+
+  /* the hold meter -------------------------------------------------- */
+  .hold{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:var(--ink);color:var(--gold);
+    border-radius:2px;padding:12px 14px;margin-bottom:14px;
+  }
+  .hold b{font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:0.01em;}
+  .hold .say{font-size:14px;color:color-mix(in srgb, var(--gold) 78%, var(--ink));}
+  .hold.broken b{color:var(--brick);}
+
+  /* the ladder ------------------------------------------------------- */
+  .ladder{background:var(--card);border-radius:2px;padding:0 14px 14px;}
+  .line{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);align-items:stretch;}
+  .seg{position:relative;}
+  .seg::before{
+    content:"";position:absolute;left:13px;top:0;bottom:0;width:3px;
+    background:var(--ink);
+  }
+  .line.first .seg::before{top:22px;}
+  .line.last .seg::before{bottom:auto;height:20px;}
+  .line.broken .seg::before{
+    background:repeating-linear-gradient(var(--brick) 0 5px, transparent 5px 10px);
+  }
+  .node{
+    position:absolute;left:8px;top:20px;
+    width:13px;height:13px;border-radius:50%;
+    background:var(--ink);border:3px solid var(--card);
+  }
+  .line.broken .node{background:var(--brick);}
+  .line.head .node{border-radius:2px;width:11px;height:11px;left:9px;top:19px;}
+
+  .layer{padding:20px 0 6px;}
+  .layer h2{font-size:26px;}
+  .layer .when{color:var(--mute);}
+  .layer .ask{color:var(--mute);font-size:14.5px;margin-top:3px;}
+
+  .item{padding:9px 0;}
+  .item textarea{
+    width:100%;font-family:var(--body);font-size:16.5px;line-height:1.45;color:var(--ink);
+    background:transparent;border:0;resize:none;overflow:hidden;min-height:26px;padding:0;
+  }
+  .item textarea::placeholder{color:color-mix(in srgb, var(--mute) 70%, var(--card));}
+  .line.broken .item textarea{color:var(--mute);}
+  .itemtop{display:flex;align-items:flex-start;gap:8px;}
+  .itemtop > div{flex:1;min-width:0;}
+
+  .linkrow{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap;}
+  .linkrow label{color:var(--mute);font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.04em;}
+  select{
+    max-width:100%;padding:5px 8px;border-radius:2px;
+    background:transparent;border:1px solid color-mix(in srgb, var(--ink) 25%, var(--card));
+    font-size:14px;color:var(--ink);
+  }
+  .line.broken select{border-color:var(--brick);color:var(--brick);}
+  .traces{color:var(--mute);font-family:var(--mono);font-size:10.5px;margin-top:6px;line-height:1.5;}
+  .traces b{color:var(--ink);font-weight:600;}
+
+  .x{
+    flex:0 0 auto;width:26px;height:26px;border:0;border-radius:2px;background:transparent;
+    color:color-mix(in srgb, var(--mute) 85%, var(--card));font-size:16px;line-height:1;cursor:pointer;
+  }
+  .x:hover{color:var(--brick);background:color-mix(in srgb, var(--brick) 9%, var(--card));}
+
+  .add{
+    margin:4px 0 2px;padding:8px 12px;cursor:pointer;
+    background:transparent;border:1px dashed color-mix(in srgb, var(--ink) 32%, var(--card));
+    border-radius:2px;color:var(--mute);
+    font-family:var(--mono);font-size:10.5px;letter-spacing:0.04em;text-transform:uppercase;
+    transition:color .15s ease, border-color .15s ease;
+  }
+  .add:hover{color:var(--ink);border-color:var(--ink);}
+  .add:disabled{opacity:0.45;cursor:default;}
+  .empty{color:var(--mute);font-style:italic;font-size:14.5px;padding:4px 0 8px;}
+
+  /* payoff ------------------------------------------------------------ */
+  .payoff{background:var(--ink);color:var(--card);border-radius:2px;padding:16px;margin-top:14px;}
+  .payoff h2{color:var(--gold);font-size:24px;}
+  .payoff p{margin-top:8px;}
+  .payoff ol{margin:10px 0 0;padding-left:20px;}
+  .payoff li{padding:3px 0;}
+  .payoff .none{color:color-mix(in srgb, var(--card) 60%, var(--ink));}
+
+  .hidden{display:none;}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;}
+  .status{color:var(--mute);}
+  .wipe{
+    background:transparent;border:1px solid color-mix(in srgb, var(--ink) 30%, var(--gold));
+    border-radius:2px;padding:8px 12px;color:var(--ink);cursor:pointer;
+    font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.04em;
+  }
+  .wipe:hover{background:var(--brick);border-color:var(--brick);color:var(--card);}
+  .wipe.armed{background:var(--brick);border-color:var(--brick);color:var(--card);}
+
+  @media (max-width:380px){
+    body{padding-left:11px;padding-right:11px;}
+    :root{--rail:28px;}
+    .node{left:5px;}
+    .seg::before{left:10px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1 class="wordmark">Backcast</h1>
+    <p class="sub">Start five years out and work back. A layer only counts if it connects to the one above it.</p>
+  </header>
+
+  <div class="hold" id="hold">
+    <span><b id="holdCount">0 of 0</b></span>
+    <span class="say" id="holdSay"></span>
+  </div>
+
+  <div class="ladder" id="ladder"></div>
+
+  <section class="payoff">
+    <h2>So this month</h2>
+    <p id="payoffLead"></p>
+    <ol id="payoffList"></ol>
+    <p class="none hidden" id="payoffNone"></p>
+  </section>
+
+  <div class="foot">
+    <span class="status mono" id="status" role="status" aria-live="polite"></span>
+    <button class="wipe" id="wipe" type="button">Erase all</button>
+  </div>
+
+</div>
+
+<script>
+const KEY = "backcast:v1";
+
+/* Storage block for the Claude artifact preview.
+   For a self hosted copy, swap this one object for the localStorage
+   version in the brief. Nothing else changes. */
+const store = {
+  async load(){
+    try{
+      const raw = await window.storage.getItem(KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return null;
+  },
+  async save(d){
+    try{ await window.storage.setItem(KEY, JSON.stringify(d)); }
+    catch(e){ console.error("Could not save", e); }
+  }
+};
+
+const LAYERS = [
+  { id:"five",    title:"Five years out", when:"2031 ish",
+    ask:"The picture. One line each, written as if it already happened.",
+    place:"I write full time and it pays the mortgage",
+    empty:"Start here. Two or three lines is plenty." },
+  { id:"year",    title:"One year out", when:"12 months",
+    ask:"What has to be true in a year for that picture to still be live.",
+    place:"Two books out and a list of four thousand readers",
+    empty:"Nothing yet. Each line here should serve a line above." },
+  { id:"quarter", title:"Three months out", when:"90 days",
+    ask:"What has to be true by the end of the quarter.",
+    place:"First draft finished and twenty essays published",
+    empty:"Nothing yet. Work back from the year, not forward from today." },
+  { id:"month",   title:"This month", when:"Next four weeks",
+    ask:"What you actually do in the next four weeks. Verbs, not hopes.",
+    place:"Write 800 words every weekday morning",
+    empty:"Nothing yet. This is the layer that has to survive contact with a Tuesday." }
+];
+
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const filled = s => (s || "").trim().length > 0;
+
+let data = { five:[], year:[], quarter:[], month:[] };
+
+/* ---------------------------------------------------------------
+   Save
+---------------------------------------------------------------- */
+let saveTimer = null, statusTimer = null;
+function save(msg){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    await store.save(data);
+    if(msg !== false) say(msg || "Saved");
+  }, 300);
+}
+function say(text){
+  $("status").textContent = text;
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { $("status").textContent = ""; }, 2200);
+}
+function fit(ta){
+  ta.style.height = "auto";
+  ta.style.height = Math.max(ta.scrollHeight, 26) + "px";
+}
+function above(layerId){
+  const i = LAYERS.findIndex(l => l.id === layerId);
+  return i > 0 ? LAYERS[i-1].id : null;
+}
+function itemById(layerId, id){
+  return (data[layerId] || []).find(i => i.id === id) || null;
+}
+function short(text, n){
+  const t = (text || "").trim();
+  if(!t) return "an empty line";
+  return t.length > n ? t.slice(0, n - 1) + "…" : t;
+}
+
+/* a line holds when it names a parent that still exists and has words */
+function holds(layerId, item){
+  const up = above(layerId);
+  if(!up) return true;
+  const parent = item.parent ? itemById(up, item.parent) : null;
+  return !!(parent && filled(parent.text));
+}
+
+/* walk a month line all the way up to its five year line */
+function chainOf(layerId, item){
+  const names = [short(item.text, 40)];
+  let curLayer = layerId, cur = item;
+  while(above(curLayer)){
+    const up = above(curLayer);
+    const parent = cur.parent ? itemById(up, cur.parent) : null;
+    if(!parent) return null;
+    names.push(short(parent.text, 40));
+    cur = parent;
+    curLayer = up;
+  }
+  return names;
+}
+
+/* ---------------------------------------------------------------
+   The thread. One line runs down the whole ladder. Where a layer
+   names its parent the line is solid ink, where it does not the line
+   turns brick and breaks into dashes, so a plan that does not join up
+   is visible before you read a word of it.
+---------------------------------------------------------------- */
+function renderLadder(){
+  const host = $("ladder");
+  host.textContent = "";
+
+  LAYERS.forEach((layer, li) => {
+    host.appendChild(headRow(layer, li === 0));
+
+    const items = data[layer.id];
+    if(!items.length){
+      host.appendChild(emptyRow(layer));
+    }
+    items.forEach((item, i) => {
+      host.appendChild(itemRow(layer, item, i));
+    });
+    host.appendChild(addRow(layer, li === LAYERS.length - 1));
+  });
+
+  /* heights need the rows in the document, so size them after the build */
+  host.querySelectorAll(".item textarea").forEach(fit);
+  renderHold();
+  renderPayoff();
+}
+
+function railLine(cls){
+  const line = document.createElement("div");
+  line.className = "line " + cls;
+  const seg = document.createElement("div");
+  seg.className = "seg";
+  const node = document.createElement("span");
+  node.className = "node";
+  node.setAttribute("aria-hidden","true");
+  seg.appendChild(node);
+  line.appendChild(seg);
+  return line;
+}
+
+function headRow(layer, first){
+  const line = railLine("head" + (first ? " first" : ""));
+  const box = document.createElement("div");
+  box.className = "layer";
+  const h = document.createElement("h2");
+  h.textContent = layer.title;
+  const when = document.createElement("p");
+  when.className = "when mono";
+  when.textContent = layer.when;
+  const ask = document.createElement("p");
+  ask.className = "ask";
+  ask.textContent = layer.ask;
+  box.appendChild(when);
+  box.appendChild(h);
+  box.appendChild(ask);
+  line.appendChild(box);
+  return line;
+}
+
+function emptyRow(layer){
+  const line = railLine("");
+  line.querySelector(".node").remove();
+  const p = document.createElement("p");
+  p.className = "empty";
+  p.textContent = layer.empty;
+  line.appendChild(p);
+  return line;
+}
+
+function itemRow(layer, item, i){
+  const ok = holds(layer.id, item);
+  const line = railLine(ok ? "" : "broken");
+  line.dataset.item = item.id;
+  line.dataset.layer = layer.id;
+
+  const box = document.createElement("div");
+  box.className = "item";
+
+  const top = document.createElement("div");
+  top.className = "itemtop";
+  const holder = document.createElement("div");
+  const ta = document.createElement("textarea");
+  ta.rows = 1;
+  ta.value = item.text;
+  ta.placeholder = layer.place;
+  ta.setAttribute("aria-label", layer.title + ", line " + (i + 1));
+  ta.addEventListener("input", e => {
+    item.text = e.target.value;
+    fit(ta);
+    refreshChildSelects(layer.id);
+    refreshThread();
+    renderHold();
+    renderPayoff();
+    save();
+  });
+  holder.appendChild(ta);
+  top.appendChild(holder);
+
+  const x = document.createElement("button");
+  x.type = "button";
+  x.className = "x";
+  x.textContent = "×";
+  x.setAttribute("aria-label", "Remove line " + (i + 1) + " from " + layer.title);
+  x.addEventListener("click", () => {
+    data[layer.id] = data[layer.id].filter(o => o.id !== item.id);
+    /* anything that pointed at it is now hanging, and should say so */
+    const belowId = LAYERS[LAYERS.findIndex(l => l.id === layer.id) + 1];
+    if(belowId){
+      data[belowId.id].forEach(child => { if(child.parent === item.id) child.parent = ""; });
+    }
+    renderLadder();
+    save("Removed");
+  });
+  top.appendChild(x);
+  box.appendChild(top);
+
+  const up = above(layer.id);
+  if(up){
+    const row = document.createElement("div");
+    row.className = "linkrow";
+    const label = document.createElement("label");
+    label.textContent = "Serves";
+    label.htmlFor = "sel-" + item.id;
+    const sel = document.createElement("select");
+    sel.id = "sel-" + item.id;
+
+    const none = document.createElement("option");
+    none.value = "";
+    none.textContent = "nothing yet";
+    sel.appendChild(none);
+
+    data[up].filter(p => filled(p.text)).forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = short(p.text, 44);
+      sel.appendChild(opt);
+    });
+    sel.value = item.parent || "";
+    sel.addEventListener("change", () => {
+      item.parent = sel.value;
+      renderLadder();
+      save(sel.value ? "Linked" : "Unlinked");
+    });
+    row.appendChild(label);
+    row.appendChild(sel);
+    box.appendChild(row);
+
+    if(layer.id === "month"){
+      const t = document.createElement("p");
+      t.className = "traces";
+      t.dataset.trace = item.id;
+      box.appendChild(t);
+      paintTrace(item, t);
+    }
+  }
+
+  line.appendChild(box);
+  return line;
+}
+
+function addRow(layer, last){
+  const line = railLine(last ? "last" : "");
+  line.querySelector(".node").remove();
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "add";
+  btn.textContent = "Add a line";
+  btn.addEventListener("click", () => {
+    data[layer.id].push({ id:uid(), text:"", parent:"" });
+    renderLadder();
+    const boxes = document.querySelectorAll("textarea");
+    const mine = Array.from(boxes).filter(b => (b.getAttribute("aria-label") || "").startsWith(layer.title));
+    if(mine.length) mine[mine.length - 1].focus();
+    save(false);
+  });
+  line.appendChild(btn);
+  return line;
+}
+
+/* the trace under a month line: where it ends up if you follow it all
+   the way back to the picture */
+function paintTrace(item, node){
+  if(!filled(item.text)){ node.textContent = ""; return; }
+  const chain = chainOf("month", item);
+  if(chain) node.innerHTML = "traces to <b>" + escapeHtml(chain[chain.length - 1]) + "</b>";
+  else node.textContent = "traces to nothing yet";
+}
+
+/* keep the thread honest while someone is still typing, without
+   rebuilding the ladder and stealing the caret */
+function refreshThread(){
+  document.querySelectorAll(".line[data-item]").forEach(line => {
+    const item = itemById(line.dataset.layer, line.dataset.item);
+    if(!item) return;
+    line.classList.toggle("broken", !holds(line.dataset.layer, item));
+  });
+  document.querySelectorAll("[data-trace]").forEach(node => {
+    const item = itemById("month", node.dataset.trace);
+    if(item) paintTrace(item, node);
+  });
+}
+
+function refreshChildSelects(layerId){
+  const i = LAYERS.findIndex(l => l.id === layerId);
+  const below = LAYERS[i + 1];
+  if(!below) return;
+  data[below.id].forEach(child => {
+    const sel = document.getElementById("sel-" + child.id);
+    if(!sel) return;
+    const keep = child.parent || "";
+    sel.textContent = "";
+    sel.appendChild(new Option("nothing yet", ""));
+    data[layerId].filter(p => filled(p.text)).forEach(p => {
+      sel.appendChild(new Option(short(p.text, 44), p.id));
+    });
+    sel.value = keep;
+    if(sel.value !== keep) child.parent = "";
+  });
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+/* ---------------------------------------------------------------
+   Does the thread hold
+---------------------------------------------------------------- */
+function renderHold(){
+  let total = 0, held = 0;
+  LAYERS.slice(1).forEach(layer => {
+    data[layer.id].filter(i => filled(i.text)).forEach(i => {
+      total += 1;
+      if(holds(layer.id, i)) held += 1;
+    });
+  });
+
+  const box = $("hold");
+  $("holdCount").textContent = held + " of " + total;
+  box.classList.toggle("broken", total > 0 && held < total);
+
+  const written = LAYERS.reduce((n,l) => n + data[l.id].filter(i => filled(i.text)).length, 0);
+  $("holdSay").textContent = !written
+    ? "Nothing written yet. Start five years out."
+    : total === 0
+      ? "Now write the year that serves it."
+      : held === total
+        ? "Every line joins up."
+        : (total - held) + (total - held === 1 ? " line hangs loose." : " lines hang loose.");
+  document.querySelectorAll(".hold b")[0].setAttribute("aria-label", held + " of " + total + " lines connect");
+}
+
+/* ---------------------------------------------------------------
+   The payoff
+---------------------------------------------------------------- */
+function renderPayoff(){
+  const list = $("payoffList");
+  const none = $("payoffNone");
+  const lead = $("payoffLead");
+  list.textContent = "";
+
+  const connected = data.month.filter(i => filled(i.text) && chainOf("month", i));
+  if(!connected.length){
+    lead.textContent = "";
+    none.classList.remove("hidden");
+    none.textContent = data.month.some(i => filled(i.text))
+      ? "Your month is written but nothing traces all the way up yet. Link each line to the quarter it serves."
+      : "Work down to this month and the next four weeks will show up here.";
+    return;
+  }
+  none.classList.add("hidden");
+  lead.textContent = connected.length === 1
+    ? "One thing, and it carries the whole picture."
+    : "These " + connected.length + " lines carry the whole picture.";
+
+  connected.forEach(i => {
+    const li = document.createElement("li");
+    li.textContent = i.text;
+    list.appendChild(li);
+  });
+}
+
+/* ---------------------------------------------------------------
+   Events
+---------------------------------------------------------------- */
+let armed = false, armTimer = null;
+$("wipe").addEventListener("click", () => {
+  const btn = $("wipe");
+  if(!armed){
+    armed = true;
+    btn.textContent = "Press again";
+    btn.classList.add("armed");
+    armTimer = setTimeout(disarm, 4000);
+    return;
+  }
+  clearTimeout(armTimer);
+  disarm();
+  data = { five:[], year:[], quarter:[], month:[] };
+  renderLadder();
+  save("Erased");
+});
+function disarm(){
+  armed = false;
+  $("wipe").textContent = "Erase all";
+  $("wipe").classList.remove("armed");
+}
+
+/* ---------------------------------------------------------------
+   Boot
+---------------------------------------------------------------- */
+(async function init(){
+  const saved = await store.load();
+  if(saved && typeof saved === "object"){
+    LAYERS.forEach(l => {
+      data[l.id] = Array.isArray(saved[l.id]) ? saved[l.id] : [];
+    });
+  }
+  renderLadder();
+  document.querySelectorAll(".item textarea").forEach(fit);
+})();
+</script>
+</body>
+</html>
