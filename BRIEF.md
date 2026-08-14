@@ -10,7 +10,7 @@ A set of small, self contained self development web apps. Each one is a single H
 
 The set is intended to be sold or bundled, so every app must stand alone and must not look like a recolored copy of the others.
 
-**Current status: 7 shipped, more in the queue.**
+**Current status: 8 shipped, more in the queue.**
 
 ---
 
@@ -73,7 +73,7 @@ const store = {
 
 Nothing else in the app changes. Keep the `async` signatures so the call sites stay identical.
 
-Each app owns one storage key, namespaced and versioned: `blueprint:v1`, `switchback:v1`, `longhand:v1`, `thegap:v1`, `counterweight:v1`, `carryover:v1`, `goodhours:v1`. All state batched into that one key, never one key per record.
+Each app owns one storage key, namespaced and versioned: `blueprint:v1`, `switchback:v1`, `longhand:v1`, `thegap:v1`, `counterweight:v1`, `carryover:v1`, `goodhours:v1`, `receipts:v1`. All state batched into that one key, never one key per record.
 
 ---
 
@@ -166,7 +166,7 @@ Pick the next unbuilt item. Concepts are fixed, the visual identity is yours to 
 
 **7. Deep work sessions. BUILT, shipped as `good-hours.html`.** Timer plus intention logging. Before each block you state what you are doing and why. Afterward you rate the focus. Builds a record of when your good hours actually are.
 
-**8. Evidence log.** A counter to negative self talk. You log specific evidence of progress, tagged by area. Signature idea: it plays evidence back to you on days you log nothing.
+**8. Evidence log. BUILT, shipped as `receipts.html`.** A counter to negative self talk. You log specific evidence of progress, tagged by area. Signature idea: it plays evidence back to you on days you log nothing.
 
 **9. Reframe.** Catch the thought, name the distortion, write the truer version. A short library of the common distortions built in.
 

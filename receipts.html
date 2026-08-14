@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Receipts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@600;700&family=Hanken+Grotesk:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ---------------------------------------------------------------
+     Receipts, an evidence log for the days you cannot see your progress.
+     Wordmark: one text node in .wordmark.
+     Colors: the five tokens in :root.
+     Storage: one key, see KEY in the script.
+  ----------------------------------------------------------------*/
+  :root{
+    --apricot:#F7E3D3;
+    --card:#FFFDF9;
+    --ink:#241610;
+    --mute:#9A8072;
+    --navy:#16326B;
+
+    --display:"Zilla Slab", Rockwell, Georgia, serif;
+    --body:"Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --mono:"DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    --edge:1px solid color-mix(in srgb, var(--ink) 12%, var(--card));
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--apricot);
+    color:var(--ink);
+    font-family:var(--body);
+    font-size:16px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:22px 14px 60px;
+  }
+  .wrap{max-width:540px;margin:0 auto;}
+  h1,h2,h3{margin:0;font-family:var(--display);font-weight:700;line-height:1.1;}
+  p{margin:0;}
+  button{font:inherit;color:inherit;}
+  :is(button,input,textarea):focus-visible{outline:3px solid var(--navy);outline-offset:2px;border-radius:2px;}
+  .mono{font-family:var(--mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;}
+
+  .top{margin-bottom:16px;}
+  .wordmark{font-size:clamp(36px,11vw,48px);letter-spacing:-0.01em;}
+  .sub{color:var(--mute);margin-top:2px;}
+
+  /* slips ---------------------------------------------------------- */
+  .slip{
+    position:relative;
+    background:var(--card);
+    border:var(--edge);
+    border-radius:0 0 4px 4px;
+    padding:16px;
+    margin-bottom:12px;
+  }
+  .slip::before{
+    content:"";
+    position:absolute;left:0;right:0;top:-1px;height:6px;
+    background-image:radial-gradient(circle at 5px 0, var(--apricot) 3.6px, transparent 3.7px);
+    background-size:10px 6px;
+    pointer-events:none;
+  }
+  .slip-head{
+    display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    padding-bottom:10px;margin-bottom:12px;
+    border-bottom:1px dashed color-mix(in srgb, var(--ink) 22%, var(--card));
+  }
+  .slip-head .mono{color:var(--mute);}
+
+  /* the playback, signature element -------------------------------- */
+  .played{background:var(--navy);border-color:var(--navy);color:var(--card);}
+  .played::before{background-image:radial-gradient(circle at 5px 0, var(--apricot) 3.6px, transparent 3.7px);}
+  .played .slip-head{border-bottom-color:color-mix(in srgb, var(--card) 34%, var(--navy));}
+  .played .slip-head .mono{color:color-mix(in srgb, var(--card) 66%, var(--navy));}
+  .played .proof{
+    font-family:var(--display);font-weight:600;
+    font-size:clamp(21px,6vw,26px);line-height:1.25;
+  }
+  .played .said{color:color-mix(in srgb, var(--card) 70%, var(--navy));margin-top:10px;}
+  .played .row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+  .played .pill{
+    padding:9px 14px;border-radius:999px;cursor:pointer;
+    background:transparent;border:1px solid color-mix(in srgb, var(--card) 40%, var(--navy));
+    color:var(--card);font-family:var(--mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;
+    transition:background-color .15s ease, color .15s ease;
+  }
+  .played .pill:hover{background:var(--card);color:var(--navy);}
+  .played .pill.solid{background:var(--card);color:var(--navy);border-color:var(--card);}
+
+  /* the form -------------------------------------------------------- */
+  .keep textarea{
+    width:100%;font-family:var(--body);font-size:17px;line-height:1.45;color:var(--ink);
+    background:transparent;border:0;resize:none;overflow:hidden;min-height:56px;padding:0;
+  }
+  .keep textarea::placeholder{color:color-mix(in srgb, var(--mute) 70%, var(--card));}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+  .chip{
+    padding:7px 12px;border-radius:999px;cursor:pointer;
+    background:transparent;border:1px solid color-mix(in srgb, var(--ink) 20%, var(--card));
+    color:var(--mute);font-family:var(--mono);font-size:11px;letter-spacing:0.05em;
+    transition:border-color .15s ease, color .15s ease, background-color .15s ease;
+  }
+  .chip:hover{border-color:var(--navy);color:var(--navy);}
+  .chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:var(--card);}
+  .chip.new{border-style:dashed;}
+  .newarea{
+    margin-top:10px;display:flex;gap:8px;
+  }
+  .newarea input{
+    flex:1;font-family:var(--body);font-size:15px;color:var(--ink);
+    background:transparent;border:0;border-bottom:2px solid color-mix(in srgb, var(--ink) 20%, var(--card));padding:4px 0;
+  }
+  .keep-btn{
+    width:100%;margin-top:16px;padding:14px;border:0;border-radius:4px;
+    background:var(--ink);color:var(--card);cursor:pointer;
+    font-family:var(--display);font-weight:700;font-size:17px;
+    transition:background-color .15s ease;
+  }
+  .keep-btn:hover:not(:disabled){background:var(--navy);}
+  .keep-btn:disabled{background:color-mix(in srgb, var(--mute) 40%, var(--card));color:var(--mute);cursor:default;}
+  .hint{color:var(--mute);font-size:14px;margin-top:10px;}
+
+  /* archive ---------------------------------------------------------- */
+  .archive{margin-top:26px;}
+  .archive-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+  .archive-head h2{font-size:22px;}
+  .archive-head .mono{color:var(--mute);}
+  .filters{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 6px;}
+  .day{margin-top:16px;}
+  .day-label{
+    font-family:var(--mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;
+    color:var(--mute);padding-bottom:6px;
+    border-bottom:1px dashed color-mix(in srgb, var(--ink) 22%, var(--apricot));
+  }
+  .item{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px dashed color-mix(in srgb, var(--ink) 14%, var(--apricot));}
+  .stub{
+    flex:0 0 auto;padding:3px 7px;border-radius:3px;
+    background:color-mix(in srgb, var(--navy) 12%, var(--apricot));
+    color:var(--navy);font-family:var(--mono);font-size:10px;letter-spacing:0.05em;text-transform:uppercase;
+    margin-top:3px;
+  }
+  .item p{flex:1;min-width:0;}
+  .x{
+    flex:0 0 auto;width:26px;height:26px;border:0;border-radius:5px;background:transparent;
+    color:color-mix(in srgb, var(--mute) 85%, var(--apricot));font-size:16px;line-height:1;cursor:pointer;
+  }
+  .x:hover{color:var(--navy);background:color-mix(in srgb, var(--navy) 10%, var(--apricot));}
+  .nothing{color:var(--mute);font-style:italic;padding-top:12px;}
+
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;}
+  .status{color:var(--mute);}
+  .wipe{
+    background:transparent;border:1px solid color-mix(in srgb, var(--ink) 18%, var(--apricot));
+    border-radius:4px;padding:8px 12px;color:var(--mute);cursor:pointer;
+    font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;
+  }
+  .wipe:hover{color:var(--navy);border-color:var(--navy);}
+  .wipe.armed{background:var(--navy);border-color:var(--navy);color:var(--card);}
+  .hidden{display:none;}
+
+  @media (max-width:380px){
+    body{padding-left:11px;padding-right:11px;}
+    .slip{padding:14px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1 class="wordmark">Receipts</h1>
+    <p class="sub">Proof you already earned, kept where you can find it.</p>
+  </header>
+
+  <!-- the playback ------------------------------------------------- -->
+  <section class="slip played" id="playback">
+    <div class="slip-head">
+      <span class="mono" id="playEyebrow"></span>
+      <span class="mono" id="playCount"></span>
+    </div>
+    <p class="proof" id="playProof"></p>
+    <p class="said" id="playSaid"></p>
+    <div class="row">
+      <button class="pill" id="another" type="button">Show me another</button>
+      <button class="pill solid" id="jump" type="button">Add one now</button>
+    </div>
+  </section>
+
+  <!-- keep one ------------------------------------------------------- -->
+  <section class="slip keep">
+    <div class="slip-head">
+      <span class="mono">New receipt</span>
+      <span class="mono" id="todayLabel"></span>
+    </div>
+    <textarea id="draft" rows="2" aria-label="What is the evidence"
+      placeholder="Write what you did. Specific beats impressive: sent the email, ran the four miles, said no."></textarea>
+
+    <div class="chips" id="areaChips" role="group" aria-label="Area"></div>
+    <div class="newarea hidden" id="newArea">
+      <input id="areaName" type="text" maxlength="14" placeholder="Name the area" aria-label="Name the new area">
+      <button class="chip" id="areaSave" type="button">Add</button>
+      <button class="chip" id="areaCancel" type="button">Cancel</button>
+    </div>
+
+    <button class="keep-btn" id="keep" type="button" disabled>Keep it</button>
+    <p class="hint" id="hint">One line is enough. The point is that it is true.</p>
+  </section>
+
+  <!-- archive ---------------------------------------------------------- -->
+  <section class="archive">
+    <div class="archive-head">
+      <h2>Kept</h2>
+      <span class="mono" id="total"></span>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div id="days"></div>
+    <p class="nothing" id="nothing">Nothing kept yet. The first one can be small.</p>
+  </section>
+
+  <div class="foot">
+    <span class="status mono" id="status" role="status" aria-live="polite"></span>
+    <button class="wipe" id="wipe" type="button">Erase all</button>
+  </div>
+
+</div>
+
+<script>
+const KEY = "receipts:v1";
+
+/* Storage block for the Claude artifact preview.
+   For a self hosted copy, swap this one object for the localStorage
+   version in the brief. Nothing else changes. */
+const store = {
+  async load(){
+    try{
+      const raw = await window.storage.getItem(KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return null;
+  },
+  async save(d){
+    try{ await window.storage.setItem(KEY, JSON.stringify(d)); }
+    catch(e){ console.error("Could not save", e); }
+  }
+};
+
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DEFAULT_AREAS = ["Work","Body","People","Craft","Money","Mind"];
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const filled = s => (s || "").trim().length > 0;
+
+let data = {
+  areas: DEFAULT_AREAS.slice(),
+  entries: [],
+  draft: { text:"", area:"Work" }
+};
+let filter = "All";
+let shownId = null;
+
+/* ---------------------------------------------------------------
+   Dates
+---------------------------------------------------------------- */
+function dayKey(ms){
+  const d = new Date(ms);
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function prettyDay(key){
+  const [y,m,d] = key.split("-").map(Number);
+  const now = new Date();
+  const same = y === now.getFullYear();
+  const label = d + " " + MONTHS[m-1] + (same ? "" : " " + y);
+  if(key === dayKey(Date.now())) return "Today, " + label;
+  const yest = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  if(key === dayKey(yest.getTime())) return "Yesterday, " + label;
+  return label;
+}
+function daysAgo(ms){
+  const a = new Date(dayKey(Date.now()) + "T00:00:00");
+  const b = new Date(dayKey(ms) + "T00:00:00");
+  return Math.round((a - b) / 86400000);
+}
+
+/* ---------------------------------------------------------------
+   Save
+---------------------------------------------------------------- */
+let saveTimer = null, statusTimer = null;
+function save(msg){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    await store.save(data);
+    if(msg !== false) say(msg || "Saved");
+  }, 300);
+}
+function say(text){
+  $("status").textContent = text;
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { $("status").textContent = ""; }, 2200);
+}
+function fit(ta){
+  ta.style.height = "auto";
+  ta.style.height = Math.max(ta.scrollHeight, 56) + "px";
+}
+
+/* ---------------------------------------------------------------
+   The playback. On a day with nothing logged, the app hands back
+   something you already did. That is the whole point of keeping them.
+---------------------------------------------------------------- */
+function keptToday(){
+  const today = dayKey(Date.now());
+  return data.entries.filter(e => dayKey(e.at) === today);
+}
+
+function pickOld(){
+  const today = dayKey(Date.now());
+  const pool = data.entries.filter(e => dayKey(e.at) !== today);
+  const wide = pool.length ? pool : data.entries;
+  if(!wide.length) return null;
+  const others = wide.filter(e => e.id !== shownId);
+  const from = others.length ? others : wide;
+  return from[Math.floor(Math.random() * from.length)];
+}
+
+function renderPlayback(){
+  const total = data.entries.length;
+  const today = keptToday().length;
+  const eyebrow = $("playEyebrow"), count = $("playCount");
+  const proof = $("playProof"), said = $("playSaid");
+  const another = $("another");
+
+  count.textContent = total ? total + (total === 1 ? " receipt" : " receipts") : "";
+
+  if(!total){
+    eyebrow.textContent = "Nothing kept yet";
+    proof.textContent = "On the days you cannot see any progress, this is where the proof will be.";
+    said.textContent = "Start with one thing you did this week that you would not have done a year ago.";
+    another.classList.add("hidden");
+    shownId = null;
+    return;
+  }
+
+  another.classList.remove("hidden");
+  const pick = pickOld();
+  shownId = pick.id;
+  proof.textContent = pick.text;
+
+  const ago = daysAgo(pick.at);
+  const when = ago === 0 ? "today" : ago === 1 ? "yesterday" : ago + " days ago";
+  said.textContent = "You did this " + when + ", filed under " + pick.area.toLowerCase() + ".";
+  eyebrow.textContent = today
+    ? (today === 1 ? "1 kept today" : today + " kept today")
+    : "Nothing logged today";
+}
+
+/* ---------------------------------------------------------------
+   Areas
+---------------------------------------------------------------- */
+function renderChips(){
+  const host = $("areaChips");
+  host.textContent = "";
+  data.areas.forEach(area => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.textContent = area;
+    b.setAttribute("aria-pressed", String(area === data.draft.area));
+    b.addEventListener("click", () => {
+      data.draft.area = area;
+      renderChips();
+      save(false);
+    });
+    host.appendChild(b);
+  });
+  const add = document.createElement("button");
+  add.type = "button";
+  add.className = "chip new";
+  add.textContent = "+ area";
+  add.setAttribute("aria-label", "Add a new area");
+  add.addEventListener("click", () => {
+    $("newArea").classList.remove("hidden");
+    $("areaName").focus();
+  });
+  host.appendChild(add);
+}
+
+function renderFilters(){
+  const host = $("filters");
+  host.textContent = "";
+  const counts = {};
+  data.entries.forEach(e => { counts[e.area] = (counts[e.area] || 0) + 1; });
+  const all = ["All"].concat(data.areas.filter(a => counts[a]));
+  if(all.length < 3){ host.classList.add("hidden"); return; }
+  host.classList.remove("hidden");
+  all.forEach(area => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.textContent = area === "All" ? "All " + data.entries.length : area + " " + counts[area];
+    b.setAttribute("aria-pressed", String(area === filter));
+    b.addEventListener("click", () => { filter = area; renderArchive(); renderFilters(); });
+    host.appendChild(b);
+  });
+}
+
+/* ---------------------------------------------------------------
+   Archive
+---------------------------------------------------------------- */
+function renderArchive(){
+  const host = $("days");
+  host.textContent = "";
+  const list = data.entries
+    .filter(e => filter === "All" || e.area === filter)
+    .sort((a,b) => b.at - a.at);
+
+  $("nothing").hidden = list.length > 0;
+  if(!list.length && data.entries.length){
+    $("nothing").hidden = false;
+    $("nothing").textContent = "Nothing under " + filter + " yet.";
+  }else if(!data.entries.length){
+    $("nothing").textContent = "Nothing kept yet. The first one can be small.";
+  }
+
+  const groups = [];
+  list.forEach(e => {
+    const key = dayKey(e.at);
+    const last = groups[groups.length - 1];
+    if(last && last.key === key) last.items.push(e);
+    else groups.push({ key, items:[e] });
+  });
+
+  groups.forEach(g => {
+    const box = document.createElement("div");
+    box.className = "day";
+    const label = document.createElement("p");
+    label.className = "day-label";
+    label.textContent = prettyDay(g.key);
+    box.appendChild(label);
+
+    g.items.forEach(e => {
+      const row = document.createElement("div");
+      row.className = "item";
+
+      const stub = document.createElement("span");
+      stub.className = "stub";
+      stub.textContent = e.area;
+      row.appendChild(stub);
+
+      const p = document.createElement("p");
+      p.textContent = e.text;
+      row.appendChild(p);
+
+      const x = document.createElement("button");
+      x.type = "button";
+      x.className = "x";
+      x.textContent = "×";
+      x.setAttribute("aria-label", "Remove this receipt");
+      x.addEventListener("click", () => {
+        data.entries = data.entries.filter(o => o.id !== e.id);
+        if(shownId === e.id) shownId = null;
+        renderAll();
+        save("Removed");
+      });
+      row.appendChild(x);
+
+      box.appendChild(row);
+    });
+
+    host.appendChild(box);
+  });
+
+  $("total").textContent = data.entries.length
+    ? data.entries.length + (data.entries.length === 1 ? " kept" : " kept")
+    : "";
+}
+
+/* ---------------------------------------------------------------
+   Render
+---------------------------------------------------------------- */
+function renderAll(){
+  $("draft").value = data.draft.text;
+  fit($("draft"));
+  $("keep").disabled = !filled(data.draft.text);
+  $("todayLabel").textContent = prettyDay(dayKey(Date.now())).replace("Today, ", "");
+  renderChips();
+  renderPlayback();
+  renderFilters();
+  renderArchive();
+}
+
+/* ---------------------------------------------------------------
+   Events
+---------------------------------------------------------------- */
+$("draft").addEventListener("input", e => {
+  data.draft.text = e.target.value;
+  fit(e.target);
+  $("keep").disabled = !filled(data.draft.text);
+  save(false);
+});
+
+$("keep").addEventListener("click", () => {
+  if(!filled(data.draft.text)) return;
+  data.entries.push({
+    id: uid(),
+    text: data.draft.text.trim(),
+    area: data.draft.area,
+    at: Date.now()
+  });
+  data.draft.text = "";
+  renderAll();
+  $("hint").textContent = "Kept. Add another, or come back on a day you need it.";
+  save("Kept");
+});
+
+$("another").addEventListener("click", () => {
+  renderPlayback();
+  $("playProof").focus?.();
+});
+
+$("jump").addEventListener("click", () => {
+  $("draft").focus();
+  $("draft").scrollIntoView({ block:"center", behavior:"smooth" });
+});
+
+$("areaSave").addEventListener("click", addArea);
+$("areaName").addEventListener("keydown", e => { if(e.key === "Enter") addArea(); });
+$("areaCancel").addEventListener("click", () => {
+  $("newArea").classList.add("hidden");
+  $("areaName").value = "";
+});
+function addArea(){
+  const name = $("areaName").value.trim();
+  if(!name) return;
+  const tidy = name[0].toUpperCase() + name.slice(1);
+  if(!data.areas.includes(tidy)) data.areas.push(tidy);
+  data.draft.area = tidy;
+  $("areaName").value = "";
+  $("newArea").classList.add("hidden");
+  renderChips();
+  renderFilters();
+  save("Area added");
+}
+
+let armed = false, armTimer = null;
+$("wipe").addEventListener("click", () => {
+  const btn = $("wipe");
+  if(!armed){
+    armed = true;
+    btn.textContent = "Press again";
+    btn.classList.add("armed");
+    armTimer = setTimeout(disarm, 4000);
+    return;
+  }
+  clearTimeout(armTimer);
+  disarm();
+  data = { areas: DEFAULT_AREAS.slice(), entries: [], draft:{ text:"", area:"Work" } };
+  filter = "All";
+  shownId = null;
+  renderAll();
+  save("Erased");
+});
+function disarm(){
+  armed = false;
+  $("wipe").textContent = "Erase all";
+  $("wipe").classList.remove("armed");
+}
+
+/* ---------------------------------------------------------------
+   Boot
+---------------------------------------------------------------- */
+(async function init(){
+  const saved = await store.load();
+  if(saved && typeof saved === "object"){
+    data = {
+      areas: Array.isArray(saved.areas) && saved.areas.length ? saved.areas : DEFAULT_AREAS.slice(),
+      entries: Array.isArray(saved.entries) ? saved.entries : [],
+      draft: Object.assign({ text:"", area:"Work" }, saved.draft || {})
+    };
+    if(!data.areas.includes(data.draft.area)) data.draft.area = data.areas[0];
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
