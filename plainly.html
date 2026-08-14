@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plainly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Figtree:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ---------------------------------------------------------------
+     Plainly, boundary scripts you can actually send.
+     Wordmark: one text node in .wordmark.
+     Colors: the five tokens in :root.
+     Storage: one key, see KEY in the script.
+  ----------------------------------------------------------------*/
+  :root{
+    --blush:#F4DFE0;
+    --card:#FFFAFB;
+    --ink:#1B1215;
+    --mute:#93737B;
+    --pine:#0F3D2E;
+
+    --display:"DM Serif Display", Georgia, "Times New Roman", serif;
+    --body:"Figtree", "Helvetica Neue", Arial, sans-serif;
+    --mono:"Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    --edge:1px solid color-mix(in srgb, var(--ink) 12%, var(--card));
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--blush);
+    color:var(--ink);
+    font-family:var(--body);
+    font-size:16px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:22px 14px 60px;
+  }
+  .wrap{max-width:540px;margin:0 auto;}
+  h1,h2{margin:0;font-family:var(--display);font-weight:400;line-height:1.1;}
+  p{margin:0;}
+  button{font:inherit;color:inherit;}
+  :is(button,input,textarea):focus-visible{outline:3px solid var(--pine);outline-offset:2px;border-radius:3px;}
+  input[type="range"]:focus-visible{outline:3px solid var(--pine);outline-offset:4px;}
+  .mono{font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;text-transform:uppercase;}
+
+  .top{margin-bottom:18px;}
+  .wordmark{font-size:clamp(38px,12vw,52px);}
+  .sub{color:var(--mute);margin-top:4px;}
+
+  .card{
+    background:var(--card);border:var(--edge);border-radius:10px;
+    padding:17px;margin-bottom:12px;
+  }
+  .card h2{font-size:22px;}
+  .note{color:var(--mute);font-size:14px;margin-top:3px;}
+
+  /* situation ------------------------------------------------------- */
+  .cases{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+  .case{
+    text-align:left;padding:12px;border-radius:8px;cursor:pointer;
+    background:transparent;border:1px solid color-mix(in srgb, var(--ink) 15%, var(--card));
+    transition:border-color .15s ease, background-color .15s ease, color .15s ease;
+  }
+  .case b{display:block;font-family:var(--display);font-weight:400;font-size:17px;line-height:1.2;}
+  .case span{color:var(--mute);font-size:12.5px;display:block;margin-top:3px;line-height:1.35;}
+  .case:hover{border-color:var(--pine);}
+  .case[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:var(--card);}
+  .case[aria-pressed="true"] span{color:color-mix(in srgb, var(--card) 70%, var(--pine));}
+
+  .who{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .who label{flex:1;min-width:130px;}
+  .who .mono{display:block;color:var(--mute);margin-bottom:3px;}
+  .who input{
+    width:100%;font-family:var(--body);font-size:15.5px;color:var(--ink);
+    background:transparent;border:0;border-bottom:2px solid color-mix(in srgb, var(--ink) 15%, var(--card));
+    padding:4px 0 6px;
+  }
+  .who input:focus{border-bottom-color:var(--pine);}
+  .who input::placeholder{color:color-mix(in srgb, var(--mute) 65%, var(--card));}
+
+  /* the dial, signature element -------------------------------------- */
+  .dial-card{background:var(--ink);border-color:var(--ink);color:var(--card);}
+  .dial-card h2{color:var(--card);}
+  .dial-card .note{color:color-mix(in srgb, var(--card) 58%, var(--ink));}
+
+  .dial{margin-top:16px;}
+  .marks{display:flex;justify-content:space-between;margin-bottom:6px;}
+  .marks span{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:0.05em;text-transform:uppercase;
+    color:color-mix(in srgb, var(--card) 45%, var(--ink));
+    transition:color .15s ease;
+  }
+  .marks span.live{color:var(--card);}
+  input[type="range"]{
+    width:100%;margin:0;-webkit-appearance:none;appearance:none;background:transparent;
+  }
+  input[type="range"]::-webkit-slider-runnable-track{
+    height:4px;border-radius:2px;
+    background:color-mix(in srgb, var(--card) 28%, var(--ink));
+  }
+  input[type="range"]::-moz-range-track{
+    height:4px;border-radius:2px;
+    background:color-mix(in srgb, var(--card) 28%, var(--ink));
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:26px;height:26px;border-radius:50%;margin-top:-11px;
+    background:var(--card);border:4px solid var(--pine);cursor:pointer;
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:26px;height:26px;border-radius:50%;
+    background:var(--card);border:4px solid var(--pine);cursor:pointer;
+  }
+  .cost{
+    margin-top:12px;padding-top:12px;
+    border-top:1px solid color-mix(in srgb, var(--card) 20%, var(--ink));
+    color:color-mix(in srgb, var(--card) 76%, var(--ink));font-size:14.5px;
+  }
+  .cost b{color:var(--card);font-weight:600;}
+
+  /* the script -------------------------------------------------------- */
+  .script{
+    width:100%;
+    font-family:var(--display);font-weight:400;
+    font-size:clamp(19px,5.2vw,23px);line-height:1.4;color:var(--ink);
+    background:transparent;border:0;resize:none;overflow:hidden;
+    padding:0;margin-top:6px;min-height:120px;
+  }
+  .actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+  .act{
+    flex:1;min-width:120px;padding:13px;border-radius:8px;cursor:pointer;
+    background:transparent;border:1px solid color-mix(in srgb, var(--ink) 18%, var(--card));
+    font-size:15px;font-weight:500;
+    transition:background-color .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .act:hover{border-color:var(--pine);color:var(--pine);}
+  .act.solid{background:var(--pine);border-color:var(--pine);color:var(--card);}
+  .act.solid:hover{background:color-mix(in srgb, var(--pine) 85%, #000);color:var(--card);}
+  .edited{color:var(--mute);font-size:13.5px;margin-top:10px;}
+
+  /* kept --------------------------------------------------------------- */
+  .kept-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+  .kept-head h2{font-size:20px;}
+  .kept-head .mono{color:var(--mute);}
+  .keptrow{display:flex;align-items:flex-start;gap:11px;padding:12px 0;border-top:var(--edge);}
+  .keptrow:first-of-type{border-top:0;}
+  .keptrow .body{flex:1;min-width:0;}
+  .keptrow .meta{color:var(--mute);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.05em;}
+  .keptrow p.line{margin-top:3px;line-height:1.45;}
+  .mini{
+    flex:0 0 auto;border:0;background:transparent;cursor:pointer;
+    color:var(--mute);font-family:var(--mono);font-size:10px;text-transform:uppercase;
+    padding:4px 6px;border-radius:5px;
+  }
+  .mini:hover{color:var(--pine);background:color-mix(in srgb, var(--pine) 9%, var(--card));}
+  .blank{color:var(--mute);font-style:italic;margin-top:10px;}
+
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;}
+  .status{color:var(--mute);}
+  .wipe{
+    background:transparent;border:1px solid color-mix(in srgb, var(--ink) 16%, var(--blush));
+    border-radius:8px;padding:8px 12px;color:var(--mute);cursor:pointer;
+    font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.05em;
+  }
+  .wipe:hover{color:var(--pine);border-color:var(--pine);}
+  .wipe.armed{background:var(--pine);border-color:var(--pine);color:var(--card);}
+  .hidden{display:none;}
+
+  @media (max-width:380px){
+    body{padding-left:11px;padding-right:11px;}
+    .card{padding:15px;}
+    .cases{grid-template-columns:1fr;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1 class="wordmark">Plainly</h1>
+    <p class="sub">Four things that are hard to say, written so you can send them.</p>
+  </header>
+
+  <section class="card">
+    <h2>The situation</h2>
+    <p class="note">Pick the one you are avoiding.</p>
+    <div class="cases" id="cases" role="group" aria-label="Situation"></div>
+
+    <div class="who">
+      <label>
+        <span class="mono">Their name</span>
+        <input id="who" type="text" autocomplete="off" placeholder="Alex">
+      </label>
+      <label>
+        <span class="mono" id="thingLabel">The thing</span>
+        <input id="thing" type="text" autocomplete="off" placeholder="the Friday workshop">
+      </label>
+    </div>
+  </section>
+
+  <section class="card dial-card">
+    <h2>The dial</h2>
+    <p class="note">Same message, different amount of room to argue.</p>
+    <div class="dial">
+      <div class="marks" id="marks">
+        <span data-mark="0">Warm</span>
+        <span data-mark="1">Plain</span>
+        <span data-mark="2">Firm</span>
+      </div>
+      <input id="tone" type="range" min="0" max="2" step="1" value="1"
+             aria-label="Tone, warm to firm">
+    </div>
+    <p class="cost" id="cost"></p>
+  </section>
+
+  <section class="card">
+    <div class="kept-head">
+      <h2 id="scriptTitle">The script</h2>
+      <span class="mono" id="toneTag"></span>
+    </div>
+    <textarea class="script" id="script" rows="4" aria-label="The script, editable"></textarea>
+    <div class="actions">
+      <button class="act solid" id="copy" type="button">Copy it</button>
+      <button class="act" id="keep" type="button">Keep it</button>
+      <button class="act" id="reset" type="button">Start again</button>
+    </div>
+    <p class="edited hidden" id="edited">Edited by you. The dial will overwrite this if you move it.</p>
+  </section>
+
+  <section class="card">
+    <div class="kept-head">
+      <h2>Kept</h2>
+      <span class="mono" id="keptCount"></span>
+    </div>
+    <div id="keptList"></div>
+    <p class="blank" id="keptBlank">Nothing kept yet. When one sounds like you, keep it.</p>
+  </section>
+
+  <div class="foot">
+    <span class="status mono" id="status" role="status" aria-live="polite"></span>
+    <button class="wipe" id="wipe" type="button">Erase all</button>
+  </div>
+
+</div>
+
+<script>
+const KEY = "plainly:v1";
+
+/* Storage block for the Claude artifact preview.
+   For a self hosted copy, swap this one object for the localStorage
+   version in the brief. Nothing else changes. */
+const store = {
+  async load(){
+    try{
+      const raw = await window.storage.getItem(KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return null;
+  },
+  async save(d){
+    try{ await window.storage.setItem(KEY, JSON.stringify(d)); }
+    catch(e){ console.error("Could not save", e); }
+  }
+};
+
+/* The book. Four situations, three tones each, and what each tone costs
+   you, because a script that hides the tradeoff is not honest. */
+const TONES = ["Warm","Plain","Firm"];
+const CASES = [
+  {
+    id:"no",
+    name:"Saying no",
+    blurb:"A request you do not want and cannot take.",
+    thing:"What they asked for",
+    hint:"the Friday workshop",
+    lines:[
+      "Thanks for thinking of me, {name}. I am going to pass on {thing}. My plate is full and I would rather be straight with you now than let you down later.",
+      "Hi {name}, I cannot take on {thing}. I am at capacity, so it is a no from me. Happy to point you at someone who might have room.",
+      "{name}, no, I am not taking on {thing}. Please plan for it without me."
+    ],
+    costs:[
+      "Keeps the warmth. Read quickly, it can still land as a maybe.",
+      "Clear and easy to forward. Most situations want this one.",
+      "Leaves no room to negotiate, and spends a little goodwill to do it."
+    ]
+  },
+  {
+    id:"scope",
+    name:"Renegotiating scope",
+    blurb:"The work grew and the deal did not.",
+    thing:"The project",
+    hint:"the site rebuild",
+    lines:[
+      "{name}, I want to get {thing} right, and it has grown a fair way past what we set aside time for. Could we either drop something or move the date? Happy to talk it through.",
+      "{name}, {thing} has grown beyond what we agreed. I can deliver the original scope by the date, or the new scope with two more weeks. Which would you prefer?",
+      "{name}, the scope of {thing} has changed, so the date and the cost change with it. I have attached the revised plan and I need a decision on it before I carry on."
+    ],
+    costs:[
+      "Invites a conversation. Slower, and it can end without a decision.",
+      "Gives them a choice with two real options, which is usually what unsticks it.",
+      "Stops the drift immediately. Use it when the polite version already failed."
+    ]
+  },
+  {
+    id:"call",
+    name:"Ending a call",
+    blurb:"It is over and nobody has said so.",
+    thing:"What is left over",
+    hint:"the budget question",
+    lines:[
+      "{name}, this has been really useful and I have to stop there. Shall we pick up {thing} over email?",
+      "{name}, I need to leave it there. I will send a summary and the next step on {thing} today.",
+      "{name}, I am going to stop us there, I have another commitment. Send anything outstanding on {thing} in writing."
+    ],
+    costs:[
+      "Soft landing. Can invite one more question you did not want.",
+      "Ends it and hands them something, so nothing feels dropped.",
+      "Ends it now. Fine for a call that has run over twice already."
+    ]
+  },
+  {
+    id:"money",
+    name:"Asking for money owed",
+    blurb:"You have done the work and been paid nothing.",
+    thing:"The invoice",
+    hint:"invoice 104",
+    lines:[
+      "Hi {name}, hope you are well. {thing} is past its due date, and I think it may have slipped through. Could you let me know when it is going out?",
+      "Hi {name}, {thing} is now overdue. Please send payment this week, or tell me the date it will be paid.",
+      "{name}, {thing} is overdue and I have not had a payment date from you. I need it settled by Friday. After that I stop work on the account and pass it on for collection."
+    ],
+    costs:[
+      "Gives them an easy way out, which often works the first time.",
+      "Asks for one of two things, a payment or a date, so silence is not an option.",
+      "Names the consequence. Keep it for the third ask, and mean it."
+    ]
+  }
+];
+
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const filled = s => (s || "").trim().length > 0;
+
+let data = {
+  draft: { caseId:"no", tone:1, who:"", thing:"", text:"", edited:false },
+  kept: []
+};
+
+function theCase(){ return CASES.find(c => c.id === data.draft.caseId) || CASES[0]; }
+
+/* ---------------------------------------------------------------
+   Save
+---------------------------------------------------------------- */
+let saveTimer = null, statusTimer = null;
+function save(msg){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    await store.save(data);
+    if(msg !== false) say(msg || "Saved");
+  }, 300);
+}
+function say(text){
+  $("status").textContent = text;
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { $("status").textContent = ""; }, 2400);
+}
+function fit(ta){
+  ta.style.height = "auto";
+  ta.style.height = Math.max(ta.scrollHeight, 120) + "px";
+}
+
+/* ---------------------------------------------------------------
+   The dial. Turning it rewrites the words, and says what the new
+   words cost you, so the choice is made with both eyes open.
+---------------------------------------------------------------- */
+function build(){
+  const c = theCase();
+  const who = filled(data.draft.who) ? data.draft.who.trim() : "[their name]";
+  const thing = filled(data.draft.thing) ? data.draft.thing.trim() : c.hint;
+  return c.lines[data.draft.tone]
+    .replace(/\{name\}/g, who)
+    .replace(/\{thing\}/g, thing);
+}
+
+function regenerate(){
+  data.draft.text = build();
+  data.draft.edited = false;
+  paintScript();
+}
+
+function paintScript(){
+  const c = theCase();
+  $("script").value = data.draft.text;
+  fit($("script"));
+  $("scriptTitle").textContent = c.name;
+  $("toneTag").textContent = TONES[data.draft.tone];
+  $("cost").innerHTML = "<b>" + TONES[data.draft.tone] + ".</b> " + c.costs[data.draft.tone];
+  $("edited").classList.toggle("hidden", !data.draft.edited);
+  document.querySelectorAll("[data-mark]").forEach(m => {
+    m.classList.toggle("live", Number(m.dataset.mark) === data.draft.tone);
+  });
+}
+
+/* ---------------------------------------------------------------
+   Situations
+---------------------------------------------------------------- */
+function renderCases(){
+  const host = $("cases");
+  host.textContent = "";
+  CASES.forEach(c => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "case";
+    b.setAttribute("aria-pressed", String(c.id === data.draft.caseId));
+    const name = document.createElement("b");
+    name.textContent = c.name;
+    const blurb = document.createElement("span");
+    blurb.textContent = c.blurb;
+    b.appendChild(name);
+    b.appendChild(blurb);
+    b.addEventListener("click", () => {
+      data.draft.caseId = c.id;
+      data.draft.thing = "";     /* the old subject does not fit the new situation */
+      $("thing").value = "";
+      renderCases();
+      $("thingLabel").textContent = c.thing;
+      $("thing").placeholder = c.hint;
+      regenerate();
+      save(false);
+    });
+    host.appendChild(b);
+  });
+  $("thingLabel").textContent = theCase().thing;
+  $("thing").placeholder = theCase().hint;
+}
+
+/* ---------------------------------------------------------------
+   Kept
+---------------------------------------------------------------- */
+function renderKept(){
+  const host = $("keptList");
+  host.textContent = "";
+  const list = data.kept.slice().sort((a,b) => b.at - a.at);
+  $("keptBlank").hidden = list.length > 0;
+  $("keptCount").textContent = list.length ? list.length + " saved" : "";
+
+  list.forEach(k => {
+    const row = document.createElement("div");
+    row.className = "keptrow";
+
+    const body = document.createElement("div");
+    body.className = "body";
+    const meta = document.createElement("p");
+    meta.className = "meta";
+    const c = CASES.find(x => x.id === k.caseId);
+    meta.textContent = (c ? c.name : "script") + " · " + TONES[k.tone];
+    const line = document.createElement("p");
+    line.className = "line";
+    line.textContent = k.text;
+    body.appendChild(meta);
+    body.appendChild(line);
+    row.appendChild(body);
+
+    const use = document.createElement("button");
+    use.type = "button";
+    use.className = "mini";
+    use.textContent = "Load";
+    use.setAttribute("aria-label", "Load this script back into the editor");
+    use.addEventListener("click", () => {
+      data.draft.caseId = k.caseId;
+      data.draft.tone = k.tone;
+      data.draft.text = k.text;
+      data.draft.edited = true;
+      $("tone").value = String(k.tone);
+      renderCases();
+      paintScript();
+      $("script").scrollIntoView({ block:"center", behavior:"smooth" });
+      save(false);
+    });
+    row.appendChild(use);
+
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "mini";
+    x.textContent = "×";
+    x.setAttribute("aria-label", "Remove this kept script");
+    x.addEventListener("click", () => {
+      data.kept = data.kept.filter(o => o.id !== k.id);
+      renderKept();
+      save("Removed");
+    });
+    row.appendChild(x);
+
+    host.appendChild(row);
+  });
+}
+
+/* ---------------------------------------------------------------
+   Render
+---------------------------------------------------------------- */
+function renderAll(){
+  $("who").value = data.draft.who;
+  $("thing").value = data.draft.thing;
+  $("tone").value = String(data.draft.tone);
+  renderCases();
+  if(!filled(data.draft.text)) data.draft.text = build();
+  paintScript();
+  renderKept();
+}
+
+/* ---------------------------------------------------------------
+   Events
+---------------------------------------------------------------- */
+$("tone").addEventListener("input", e => {
+  data.draft.tone = Number(e.target.value);
+  regenerate();
+  save(false);
+});
+
+["who","thing"].forEach(id => {
+  $(id).addEventListener("input", e => {
+    data.draft[id] = e.target.value;
+    if(!data.draft.edited) regenerate();
+    else paintScript();
+    save(false);
+  });
+});
+
+$("script").addEventListener("input", e => {
+  data.draft.text = e.target.value;
+  data.draft.edited = true;
+  fit(e.target);
+  $("edited").classList.remove("hidden");
+  save(false);
+});
+
+$("copy").addEventListener("click", async () => {
+  const text = data.draft.text;
+  try{
+    await navigator.clipboard.writeText(text);
+    say("Copied");
+  }catch(e){
+    const box = $("script");
+    box.focus();
+    box.select();
+    say("Press copy on your keyboard, the script is selected");
+  }
+});
+
+$("keep").addEventListener("click", () => {
+  if(!filled(data.draft.text)) return;
+  data.kept.push({
+    id: uid(),
+    caseId: data.draft.caseId,
+    tone: data.draft.tone,
+    text: data.draft.text.trim(),
+    at: Date.now()
+  });
+  renderKept();
+  save("Kept");
+});
+
+$("reset").addEventListener("click", () => {
+  regenerate();
+  say("Back to the written version");
+  save(false);
+});
+
+let armed = false, armTimer = null;
+$("wipe").addEventListener("click", () => {
+  const btn = $("wipe");
+  if(!armed){
+    armed = true;
+    btn.textContent = "Press again";
+    btn.classList.add("armed");
+    armTimer = setTimeout(disarm, 4000);
+    return;
+  }
+  clearTimeout(armTimer);
+  disarm();
+  data = { draft:{ caseId:"no", tone:1, who:"", thing:"", text:"", edited:false }, kept:[] };
+  renderAll();
+  save("Erased");
+});
+function disarm(){
+  armed = false;
+  $("wipe").textContent = "Erase all";
+  $("wipe").classList.remove("armed");
+}
+
+/* ---------------------------------------------------------------
+   Boot
+---------------------------------------------------------------- */
+(async function init(){
+  const saved = await store.load();
+  if(saved && typeof saved === "object"){
+    data = {
+      draft: Object.assign({ caseId:"no", tone:1, who:"", thing:"", text:"", edited:false }, saved.draft || {}),
+      kept: Array.isArray(saved.kept) ? saved.kept : []
+    };
+    if(!CASES.some(c => c.id === data.draft.caseId)) data.draft.caseId = "no";
+    data.draft.tone = Math.min(2, Math.max(0, Number(data.draft.tone) || 0));
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>

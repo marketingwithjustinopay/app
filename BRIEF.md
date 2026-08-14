@@ -10,7 +10,7 @@ A set of small, self contained self development web apps. Each one is a single H
 
 The set is intended to be sold or bundled, so every app must stand alone and must not look like a recolored copy of the others.
 
-**Current status: 11 shipped, more in the queue.**
+**Current status: 12 shipped, the queue in section 7 is clear.**
 
 ---
 
@@ -73,7 +73,7 @@ const store = {
 
 Nothing else in the app changes. Keep the `async` signatures so the call sites stay identical.
 
-Each app owns one storage key, namespaced and versioned: `blueprint:v1`, `switchback:v1`, `longhand:v1`, `thegap:v1`, `counterweight:v1`, `carryover:v1`, `goodhours:v1`, `receipts:v1`, `reframe:v1`, `tideline:v1`, `backcast:v1`. All state batched into that one key, never one key per record.
+Each app owns one storage key, namespaced and versioned: `blueprint:v1`, `switchback:v1`, `longhand:v1`, `thegap:v1`, `counterweight:v1`, `carryover:v1`, `goodhours:v1`, `receipts:v1`, `reframe:v1`, `tideline:v1`, `backcast:v1`, `plainly:v1`. All state batched into that one key, never one key per record.
 
 ---
 
@@ -174,7 +174,7 @@ Pick the next unbuilt item. Concepts are fixed, the visual identity is yours to 
 
 **11. Backcast. BUILT, shipped as `backcast.html`.** A five year picture worked backward to what happens this month. Each layer has to connect to the one above it or it does not count.
 
-**12. Boundary scripts.** Pick the situation, get a phrasing you can actually send. Saying no, renegotiating scope, ending a call, asking for money owed.
+**12. Boundary scripts. BUILT, shipped as `plainly.html`.** Pick the situation, get a phrasing you can actually send. Saying no, renegotiating scope, ending a call, asking for money owed.
 
 ---
 

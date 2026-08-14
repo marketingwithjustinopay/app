@@ -453,6 +453,7 @@ function addRow(layer, last){
   btn.type = "button";
   btn.className = "add";
   btn.textContent = "Add a line";
+  btn.setAttribute("aria-label", "Add a line to " + layer.title);
   btn.addEventListener("click", () => {
     data[layer.id].push({ id:uid(), text:"", parent:"" });
     renderLadder();
