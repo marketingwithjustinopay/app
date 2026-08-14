@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reframe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Mulish:wght@400;500;600&family=Martian+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------------------------------------------------------------
+     Reframe, catch a thought, name the distortion, write the truer version.
+     Wordmark: one text node in .wordmark.
+     Colors: the six tokens in :root.
+     Storage: one key, see KEY in the script.
+  ----------------------------------------------------------------*/
+  :root{
+    --night:#0C1710;
+    --panel:#13221A;
+    --chalk:#E6EFE7;
+    --moss:#7E9686;
+    --butter:#F4D06F;
+    --sky:#7FB2E5;
+
+    --display:"Unbounded", "Trebuchet MS", sans-serif;
+    --body:"Mulish", "Helvetica Neue", Arial, sans-serif;
+    --mono:"Martian Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    --edge:1px solid color-mix(in srgb, var(--chalk) 14%, var(--panel));
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--night);
+    color:var(--chalk);
+    font-family:var(--body);
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    padding:24px 14px 60px;
+  }
+  .wrap{max-width:544px;margin:0 auto;}
+  h1,h2{margin:0;font-family:var(--display);font-weight:700;line-height:1.15;letter-spacing:-0.02em;}
+  p{margin:0;}
+  button{font:inherit;color:inherit;}
+  :is(button,input,textarea):focus-visible{outline:3px solid var(--butter);outline-offset:2px;border-radius:3px;}
+  .mono{font-family:var(--mono);font-size:10px;letter-spacing:0.02em;text-transform:uppercase;}
+
+  .top{margin-bottom:20px;}
+  .wordmark{font-size:clamp(30px,8.5vw,40px);}
+  .sub{color:var(--moss);margin-top:6px;max-width:38ch;}
+
+  .step{
+    background:var(--panel);
+    border:var(--edge);
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:12px;
+  }
+  .step-top{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--moss);}
+  .step.on .dot{background:var(--butter);}
+  .step-top .mono{color:var(--moss);}
+  .step h2{font-size:19px;letter-spacing:-0.01em;}
+  .ask{color:var(--moss);font-size:14.5px;margin-top:5px;}
+
+  .say{
+    width:100%;margin-top:12px;
+    font-family:var(--body);font-size:17px;line-height:1.5;color:var(--chalk);
+    background:transparent;border:0;border-left:2px solid color-mix(in srgb, var(--chalk) 20%, var(--panel));
+    padding:2px 0 2px 13px;resize:none;overflow:hidden;min-height:52px;
+  }
+  .say::placeholder{color:color-mix(in srgb, var(--moss) 70%, var(--panel));}
+  .say:focus{border-left-color:var(--butter);}
+  .say.truer{border-left-color:var(--butter);}
+
+  /* distortion library --------------------------------------------- */
+  .names{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+  .name{
+    padding:8px 12px;border-radius:9px;cursor:pointer;
+    background:transparent;border:1px solid color-mix(in srgb, var(--chalk) 16%, var(--panel));
+    color:color-mix(in srgb, var(--chalk) 78%, var(--panel));
+    font-size:13.5px;
+    transition:border-color .15s ease, background-color .15s ease, color .15s ease;
+  }
+  .name:hover{border-color:var(--sky);color:var(--sky);}
+  .name[aria-pressed="true"]{background:var(--sky);border-color:var(--sky);color:var(--night);font-weight:600;}
+  .tell{
+    margin-top:12px;padding:12px 14px;border-radius:11px;
+    background:color-mix(in srgb, var(--sky) 12%, var(--panel));
+    border-left:3px solid var(--sky);
+  }
+  .tell b{display:block;color:var(--sky);font-weight:600;}
+  .tell span{color:color-mix(in srgb, var(--chalk) 82%, var(--panel));font-size:14.5px;}
+
+  .keep{
+    width:100%;margin-top:14px;padding:15px;border:0;border-radius:11px;
+    background:var(--butter);color:var(--night);cursor:pointer;
+    font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:-0.01em;
+    transition:background-color .15s ease;
+  }
+  .keep:hover:not(:disabled){background:color-mix(in srgb, var(--butter) 78%, #fff);}
+  .keep:disabled{background:color-mix(in srgb, var(--chalk) 14%, var(--panel));color:var(--moss);cursor:default;}
+  .why-blocked{color:var(--moss);font-size:14px;margin-top:9px;text-align:center;}
+
+  /* the swap, signature element ------------------------------------ */
+  .kept{margin-top:26px;}
+  .kept-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px;}
+  .kept-head h2{font-size:20px;}
+  .kept-head .mono{color:var(--moss);}
+  .trap{color:var(--moss);font-size:14.5px;margin-bottom:14px;}
+  .trap b{color:var(--sky);font-weight:600;}
+
+  .swap{
+    background:var(--panel);border:var(--edge);border-radius:16px;
+    padding:16px;margin-bottom:10px;
+  }
+  .swap .was{
+    color:var(--moss);font-size:14px;line-height:1.45;
+    text-decoration:line-through;
+    text-decoration-color:color-mix(in srgb, var(--moss) 70%, var(--panel));
+  }
+  .swap .now{
+    font-family:var(--display);font-weight:600;
+    font-size:clamp(17px,4.6vw,20px);line-height:1.35;letter-spacing:-0.02em;
+    margin-top:10px;padding-left:13px;
+    border-left:3px solid var(--butter);
+  }
+  .swap-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:13px;}
+  .tag{
+    padding:4px 9px;border-radius:7px;
+    background:color-mix(in srgb, var(--sky) 16%, var(--panel));
+    color:var(--sky);font-family:var(--mono);font-size:10px;text-transform:uppercase;
+  }
+  .stampline{display:flex;align-items:center;gap:10px;}
+  .stamp{color:var(--moss);font-family:var(--mono);font-size:10px;text-transform:uppercase;}
+  .x{
+    width:26px;height:26px;border:0;border-radius:7px;background:transparent;
+    color:var(--moss);font-size:16px;line-height:1;cursor:pointer;
+  }
+  .x:hover{color:var(--butter);background:color-mix(in srgb, var(--butter) 12%, var(--panel));}
+  .none{color:var(--moss);font-style:italic;}
+
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;}
+  .status{color:var(--moss);}
+  .wipe{
+    background:transparent;border:1px solid color-mix(in srgb, var(--chalk) 16%, var(--night));
+    border-radius:9px;padding:8px 12px;color:var(--moss);cursor:pointer;
+    font-family:var(--mono);font-size:10px;text-transform:uppercase;
+  }
+  .wipe:hover{color:var(--butter);border-color:var(--butter);}
+  .wipe.armed{background:var(--butter);border-color:var(--butter);color:var(--night);}
+  .hidden{display:none;}
+
+  @media (max-width:380px){
+    body{padding-left:11px;padding-right:11px;}
+    .step,.swap{padding:15px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1 class="wordmark">Reframe</h1>
+    <p class="sub">Catch the thought, name what it is doing, then write the version you would defend.</p>
+  </header>
+
+  <section class="step" id="step1">
+    <div class="step-top"><span class="dot" aria-hidden="true"></span><span class="mono">Step one</span></div>
+    <h2>Catch the thought</h2>
+    <p class="ask">In its own words, the way it actually turned up.</p>
+    <textarea class="say" id="thought" rows="2" aria-label="The thought"
+      placeholder="I am going to be found out in that meeting"></textarea>
+  </section>
+
+  <section class="step" id="step2">
+    <div class="step-top"><span class="dot" aria-hidden="true"></span><span class="mono">Step two</span></div>
+    <h2>Name the distortion</h2>
+    <p class="ask">Pick the closest fit. Naming it is most of the work.</p>
+    <div class="names" id="names" role="group" aria-label="Distortions"></div>
+    <div class="tell hidden" id="tell"><b id="tellName"></b><span id="tellText"></span></div>
+  </section>
+
+  <section class="step" id="step3">
+    <div class="step-top"><span class="dot" aria-hidden="true"></span><span class="mono">Step three</span></div>
+    <h2>Write the truer version</h2>
+    <p class="ask" id="ask3">Not the cheerful version. The one that survives the evidence.</p>
+    <textarea class="say truer" id="truer" rows="2" aria-label="The truer version"
+      placeholder="I am under prepared on one slide, and I know that room"></textarea>
+    <button class="keep" id="keep" type="button" disabled>Keep the reframe</button>
+    <p class="why-blocked" id="blocked"></p>
+  </section>
+
+  <section class="kept">
+    <div class="kept-head">
+      <h2>Kept</h2>
+      <span class="mono" id="count"></span>
+    </div>
+    <p class="trap hidden" id="trap"></p>
+    <div id="list"></div>
+    <p class="none" id="none">Nothing caught yet. When a thought lands hard, put it here first.</p>
+  </section>
+
+  <div class="foot">
+    <span class="status mono" id="status" role="status" aria-live="polite"></span>
+    <button class="wipe" id="wipe" type="button">Erase all</button>
+  </div>
+
+</div>
+
+<script>
+const KEY = "reframe:v1";
+
+/* Storage block for the Claude artifact preview.
+   For a self hosted copy, swap this one object for the localStorage
+   version in the brief. Nothing else changes. */
+const store = {
+  async load(){
+    try{
+      const raw = await window.storage.getItem(KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return null;
+  },
+  async save(d){
+    try{ await window.storage.setItem(KEY, JSON.stringify(d)); }
+    catch(e){ console.error("Could not save", e); }
+  }
+};
+
+/* The library. Each one has a tell, so you can spot it, and a question
+   that does the work of writing the truer version. */
+const DISTORTIONS = [
+  { id:"allornothing", name:"All or nothing",
+    tell:"It sorts into perfect or worthless, with nothing in between.",
+    ask:"What would the middle version of this look like, written plainly?" },
+  { id:"mindreading", name:"Mind reading",
+    tell:"You are certain what someone thinks, without them saying it.",
+    ask:"What did they actually say or do, with nothing added?" },
+  { id:"fortunetelling", name:"Fortune telling",
+    tell:"The ending is decided before anything has happened.",
+    ask:"What is the most likely outcome, given how these usually go?" },
+  { id:"catastrophising", name:"Catastrophising",
+    tell:"One bad sign runs the whole way to the worst case.",
+    ask:"If the bad thing happened, what would you actually do next?" },
+  { id:"shoulds", name:"Should statements",
+    tell:"A rule about where you are supposed to be by now.",
+    ask:"Whose rule is that, and what is true about where you are?" },
+  { id:"labelling", name:"Labelling",
+    tell:"One event becomes a permanent word about who you are.",
+    ask:"What did you do, said as an action rather than an identity?" },
+  { id:"filtering", name:"Filtering",
+    tell:"One flaw cancels everything that went well.",
+    ask:"What else happened that this thought is leaving out?" },
+  { id:"personalising", name:"Personalising",
+    tell:"You take the cause of something that had many causes.",
+    ask:"What else was in play that had nothing to do with you?" },
+  { id:"feelingisfact", name:"Emotional reasoning",
+    tell:"The feeling is treated as the evidence.",
+    ask:"What is the evidence, separate from how it feels right now?" },
+  { id:"always", name:"Overgeneralising",
+    tell:"Always and never are doing the heavy lifting.",
+    ask:"When did this not happen? Name one time." }
+];
+
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const filled = s => (s || "").trim().length > 0;
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+let data = { draft:{ thought:"", pick:null, truer:"" }, entries:[] };
+
+/* ---------------------------------------------------------------
+   Save
+---------------------------------------------------------------- */
+let saveTimer = null, statusTimer = null;
+function save(msg){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    await store.save(data);
+    if(msg !== false) say(msg || "Saved");
+  }, 300);
+}
+function say(text){
+  $("status").textContent = text;
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { $("status").textContent = ""; }, 2200);
+}
+function fit(ta){
+  ta.style.height = "auto";
+  ta.style.height = Math.max(ta.scrollHeight, 52) + "px";
+}
+function byId(id){ return DISTORTIONS.find(d => d.id === id) || null; }
+function stamp(ms){
+  const d = new Date(ms);
+  return d.getDate() + " " + MONTHS[d.getMonth()];
+}
+
+/* ---------------------------------------------------------------
+   Steps
+---------------------------------------------------------------- */
+function renderNames(){
+  const host = $("names");
+  host.textContent = "";
+  DISTORTIONS.forEach(d => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "name";
+    b.textContent = d.name;
+    b.setAttribute("aria-pressed", String(data.draft.pick === d.id));
+    b.addEventListener("click", () => {
+      data.draft.pick = data.draft.pick === d.id ? null : d.id;
+      renderNames();
+      renderTell();
+      renderGate();
+      save(false);
+    });
+    host.appendChild(b);
+  });
+}
+
+function renderTell(){
+  const d = byId(data.draft.pick);
+  const box = $("tell");
+  box.classList.toggle("hidden", !d);
+  if(!d){
+    $("ask3").textContent = "Not the cheerful version. The one that survives the evidence.";
+    return;
+  }
+  $("tellName").textContent = "The tell";
+  $("tellText").textContent = d.tell;
+  $("ask3").textContent = d.ask;
+}
+
+function renderGate(){
+  const dr = data.draft;
+  const ready = filled(dr.thought) && dr.pick && filled(dr.truer);
+  $("keep").disabled = !ready;
+  $("step1").classList.toggle("on", filled(dr.thought));
+  $("step2").classList.toggle("on", !!dr.pick);
+  $("step3").classList.toggle("on", filled(dr.truer));
+
+  const missing = [];
+  if(!filled(dr.thought)) missing.push("the thought");
+  if(!dr.pick) missing.push("a distortion");
+  if(!filled(dr.truer)) missing.push("the truer version");
+  $("blocked").textContent = missing.length
+    ? "Still needs " + (missing.length === 1 ? missing[0] : missing.slice(0,-1).join(", ") + " and " + missing[missing.length-1]) + "."
+    : "";
+}
+
+/* ---------------------------------------------------------------
+   The swap. The caught thought is never deleted, it is demoted:
+   struck through and small, with the truer version given the weight.
+---------------------------------------------------------------- */
+function renderKept(){
+  const host = $("list");
+  host.textContent = "";
+  const list = data.entries.slice().sort((a,b) => b.at - a.at);
+  $("none").hidden = list.length > 0;
+  $("count").textContent = list.length ? list.length + " caught" : "";
+
+  list.forEach(e => {
+    const card = document.createElement("article");
+    card.className = "swap";
+
+    const was = document.createElement("p");
+    was.className = "was";
+    was.textContent = e.thought;
+    card.appendChild(was);
+
+    const now = document.createElement("p");
+    now.className = "now";
+    now.textContent = e.truer;
+    card.appendChild(now);
+
+    const foot = document.createElement("div");
+    foot.className = "swap-foot";
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    const d = byId(e.pick);
+    tag.textContent = d ? d.name : "unnamed";
+    foot.appendChild(tag);
+
+    const right = document.createElement("span");
+    right.className = "stampline";
+    const when = document.createElement("span");
+    when.className = "stamp";
+    when.textContent = stamp(e.at);
+    right.appendChild(when);
+
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "x";
+    x.textContent = "×";
+    x.setAttribute("aria-label", "Remove this reframe");
+    x.addEventListener("click", () => {
+      data.entries = data.entries.filter(o => o.id !== e.id);
+      renderKept();
+      save("Removed");
+    });
+    right.appendChild(x);
+    foot.appendChild(right);
+    card.appendChild(foot);
+
+    host.appendChild(card);
+  });
+
+  renderTrap();
+}
+
+function renderTrap(){
+  const node = $("trap");
+  if(data.entries.length < 3){ node.classList.add("hidden"); return; }
+  const counts = {};
+  data.entries.forEach(e => { counts[e.pick] = (counts[e.pick] || 0) + 1; });
+  let top = null;
+  Object.keys(counts).forEach(k => { if(!top || counts[k] > counts[top]) top = k; });
+  const d = byId(top);
+  if(!d || counts[top] < 2){ node.classList.add("hidden"); return; }
+  node.classList.remove("hidden");
+  node.innerHTML = "Your most common trap is <b>" + d.name.toLowerCase() + "</b>, " +
+    counts[top] + " times. " + d.tell;
+}
+
+/* ---------------------------------------------------------------
+   Render
+---------------------------------------------------------------- */
+function renderAll(){
+  $("thought").value = data.draft.thought;
+  $("truer").value = data.draft.truer;
+  fit($("thought"));
+  fit($("truer"));
+  renderNames();
+  renderTell();
+  renderGate();
+  renderKept();
+}
+
+/* ---------------------------------------------------------------
+   Events
+---------------------------------------------------------------- */
+$("thought").addEventListener("input", e => {
+  data.draft.thought = e.target.value;
+  fit(e.target); renderGate(); save(false);
+});
+$("truer").addEventListener("input", e => {
+  data.draft.truer = e.target.value;
+  fit(e.target); renderGate(); save(false);
+});
+
+$("keep").addEventListener("click", () => {
+  const dr = data.draft;
+  if(!(filled(dr.thought) && dr.pick && filled(dr.truer))) return;
+  data.entries.push({
+    id: uid(),
+    thought: dr.thought.trim(),
+    truer: dr.truer.trim(),
+    pick: dr.pick,
+    at: Date.now()
+  });
+  data.draft = { thought:"", pick:null, truer:"" };
+  renderAll();
+  save("Kept");
+  $("thought").focus();
+});
+
+let armed = false, armTimer = null;
+$("wipe").addEventListener("click", () => {
+  const btn = $("wipe");
+  if(!armed){
+    armed = true;
+    btn.textContent = "Press again";
+    btn.classList.add("armed");
+    armTimer = setTimeout(disarm, 4000);
+    return;
+  }
+  clearTimeout(armTimer);
+  disarm();
+  data = { draft:{ thought:"", pick:null, truer:"" }, entries:[] };
+  renderAll();
+  save("Erased");
+});
+function disarm(){
+  armed = false;
+  $("wipe").textContent = "Erase all";
+  $("wipe").classList.remove("armed");
+}
+
+/* ---------------------------------------------------------------
+   Boot
+---------------------------------------------------------------- */
+(async function init(){
+  const saved = await store.load();
+  if(saved && typeof saved === "object"){
+    data = {
+      draft: Object.assign({ thought:"", pick:null, truer:"" }, saved.draft || {}),
+      entries: Array.isArray(saved.entries) ? saved.entries : []
+    };
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
