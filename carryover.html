@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carryover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Work+Sans:ital,wght@0,400;0,500;1,400&family=Azeret+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------------------------------------------------------------
+     Carryover, a weekly review that will not let you forget.
+     Wordmark: --wordmark below and one text node in .wordmark.
+     Colors: the six tokens in :root.
+     Storage: one key, see KEY in the script.
+  ----------------------------------------------------------------*/
+  :root{
+    --oat:#EFE7D2;
+    --card:#FCF8EE;
+    --ink:#20211C;
+    --mute:#8B8676;
+    --violet:#4B33C4;
+    --clay:#A4462B;
+
+    --display:"Syne", "Trebuchet MS", sans-serif;
+    --body:"Work Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono:"Azeret Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    --hair:1px solid color-mix(in srgb, var(--ink) 14%, var(--card));
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--oat);
+    color:var(--ink);
+    font-family:var(--body);
+    font-size:16px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding:22px 14px 60px;
+  }
+  .wrap{max-width:548px;margin:0 auto;}
+  h1,h2,h3{margin:0;font-family:var(--display);font-weight:800;line-height:1.05;}
+  p{margin:0;}
+  button{font:inherit;color:inherit;}
+  :is(button,input,textarea):focus-visible{outline:3px solid var(--violet);outline-offset:2px;border-radius:2px;}
+
+  .mono{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;}
+
+  /* masthead ----------------------------------------------------- */
+  .top{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px;}
+  .wordmark{font-size:clamp(34px,10vw,46px);letter-spacing:-0.02em;}
+  .weekstamp{text-align:right;color:var(--mute);line-height:1.6;}
+  .weekstamp b{display:block;color:var(--ink);font-family:var(--mono);font-size:13px;letter-spacing:0.02em;text-transform:none;}
+
+  /* blocks -------------------------------------------------------- */
+  .block{
+    background:var(--card);
+    border:1px solid color-mix(in srgb, var(--ink) 12%, var(--card));
+    border-radius:3px;
+    padding:16px;
+    margin-bottom:12px;
+  }
+  .block-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+  .block-head h2{font-size:19px;}
+  .block-head .tally{color:var(--mute);}
+  .prompt{color:var(--mute);font-size:14.5px;margin-top:2px;}
+
+  .list{margin-top:12px;}
+  .row{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-top:var(--hair);}
+  .row:first-child{border-top:0;}
+  .bullet{
+    flex:0 0 auto;width:9px;height:9px;margin-top:11px;border-radius:2px;
+    background:var(--ink);
+  }
+  .stalled .bullet{background:transparent;border:2px solid var(--clay);border-radius:50%;}
+  .dropped .bullet{background:var(--mute);height:2px;margin-top:15px;}
+  .cell{flex:1;min-width:0;}
+  .entry{
+    width:100%;font-family:var(--body);font-size:16px;color:var(--ink);
+    background:transparent;border:0;border-bottom:1px solid transparent;
+    padding:4px 0;
+  }
+  .entry:focus{border-bottom-color:var(--violet);}
+  .entry::placeholder{color:color-mix(in srgb, var(--mute) 75%, var(--card));}
+  .dropped .entry{color:var(--mute);text-decoration:line-through;text-decoration-color:color-mix(in srgb, var(--mute) 60%, var(--card));}
+
+  textarea.entry{resize:none;overflow:hidden;min-height:26px;line-height:1.55;}
+
+  .x{
+    flex:0 0 auto;width:26px;height:26px;margin-top:4px;
+    display:grid;place-items:center;
+    background:transparent;border:0;border-radius:3px;
+    color:color-mix(in srgb, var(--mute) 80%, var(--card));
+    font-size:16px;line-height:1;cursor:pointer;
+    transition:color .15s ease, background-color .15s ease;
+  }
+  .x:hover{color:var(--clay);background:color-mix(in srgb, var(--clay) 10%, var(--card));}
+
+  .add{
+    margin-top:10px;padding:8px 13px;
+    background:transparent;border:1px dashed color-mix(in srgb, var(--ink) 28%, var(--card));
+    border-radius:3px;color:var(--mute);
+    font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;
+    cursor:pointer;transition:color .15s ease, border-color .15s ease;
+  }
+  .add:hover{color:var(--violet);border-color:var(--violet);}
+
+  .none{color:var(--mute);font-style:italic;font-size:14.5px;margin-top:10px;}
+
+  /* the drag tail, signature element ------------------------------ */
+  .tail{display:flex;align-items:center;gap:4px;margin:3px 0 2px;flex-wrap:wrap;}
+  .notch{
+    width:14px;height:6px;border-radius:1px;
+    background:color-mix(in srgb, var(--mute) 55%, var(--card));
+  }
+  .notch.live{background:var(--clay);}
+  .age{color:var(--mute);font-family:var(--mono);font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;}
+  .row.old .age{color:var(--clay);}
+  .row.old .entry{font-weight:500;}
+
+  /* close the week ------------------------------------------------ */
+  .close-bar{
+    background:var(--ink);color:var(--card);
+    border-radius:3px;padding:16px;margin-bottom:12px;
+  }
+  .close-bar h2{color:var(--card);font-size:19px;}
+  .close-bar p{color:color-mix(in srgb, var(--card) 62%, var(--ink));font-size:14.5px;margin-top:4px;}
+  .close-btn{
+    margin-top:13px;width:100%;
+    padding:12px 16px;border:0;border-radius:3px;
+    background:var(--violet);color:#fff;
+    font-family:var(--display);font-weight:800;font-size:16px;
+    cursor:pointer;transition:background-color .15s ease;
+  }
+  .close-btn:hover:not(:disabled){background:color-mix(in srgb, var(--violet) 82%, #fff);}
+  .close-btn:disabled{background:color-mix(in srgb, var(--card) 22%, var(--ink));color:color-mix(in srgb, var(--card) 45%, var(--ink));cursor:default;}
+
+  /* archive -------------------------------------------------------- */
+  .past{margin-top:22px;}
+  .past h2{font-size:17px;margin-bottom:8px;}
+  .week{
+    background:var(--card);border:1px solid color-mix(in srgb, var(--ink) 12%, var(--card));
+    border-radius:3px;margin-bottom:7px;overflow:hidden;
+  }
+  .week summary{
+    list-style:none;cursor:pointer;padding:11px 14px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .week summary::-webkit-details-marker{display:none;}
+  .week summary:focus-visible{outline:3px solid var(--violet);outline-offset:-3px;}
+  .week .when{font-family:var(--mono);font-size:12px;}
+  .figs{display:flex;gap:9px;color:var(--mute);}
+  .figs b{color:var(--ink);font-weight:600;}
+  .figs .s{color:var(--clay);}
+  .week-body{padding:2px 14px 14px;border-top:var(--hair);}
+  .week-body h3{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--mute);margin:12px 0 4px;}
+  .week-body ul{margin:0;padding-left:17px;}
+  .week-body li{padding:1px 0;}
+  .week-body .said{font-size:15px;}
+
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;padding:0 2px;}
+  .status{color:var(--mute);}
+  .wipe{
+    background:transparent;border:1px solid color-mix(in srgb, var(--ink) 20%, var(--oat));
+    border-radius:3px;padding:8px 13px;color:var(--mute);cursor:pointer;
+    font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;
+  }
+  .wipe:hover{color:var(--clay);border-color:var(--clay);}
+  .wipe.armed{background:var(--clay);border-color:var(--clay);color:var(--card);}
+
+  @media (max-width:390px){
+    body{padding-left:11px;padding-right:11px;}
+    .block,.close-bar{padding:14px;}
+    .top{flex-direction:column;align-items:flex-start;gap:6px;}
+    .weekstamp{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none !important;animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1 class="wordmark">Carryover</h1>
+    <p class="weekstamp mono">Week ending<b id="weekLabel"></b></p>
+  </header>
+
+  <section class="block">
+    <div class="block-head"><h2>Moved</h2><span class="tally mono" id="movedTally"></span></div>
+    <p class="prompt">What actually got somewhere this week.</p>
+    <div class="list" id="movedList"></div>
+    <p class="none" id="movedNone">Start here. Name one thing that moved, however small.</p>
+    <button class="add" data-add="moved" type="button">Add</button>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>Stalled</h2><span class="tally mono" id="stalledTally"></span></div>
+    <p class="prompt">What did not move. These come back next week with their age on them.</p>
+    <div class="list" id="stalledList"></div>
+    <p class="none" id="stalledNone">Nothing stuck yet. Add anything you keep meaning to do.</p>
+    <button class="add" data-add="stalled" type="button">Add</button>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>Learned</h2></div>
+    <p class="prompt">One thing you know now that you did not know on Monday.</p>
+    <div class="list">
+      <div class="row" style="border-top:0">
+        <span class="bullet" aria-hidden="true"></span>
+        <div class="cell">
+          <textarea class="entry" id="learned" rows="1" aria-label="What you learned this week"
+                    placeholder="Write it plainly, so it is still useful in a month"></textarea>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2>Dropping</h2><span class="tally mono" id="droppedTally"></span></div>
+    <p class="prompt">What you are letting go of, on purpose. Dropped items do not carry.</p>
+    <div class="list" id="droppedList"></div>
+    <p class="none" id="droppedNone">Nothing dropped. Something dragging for weeks may belong here.</p>
+    <button class="add" data-add="dropped" type="button">Add</button>
+  </section>
+
+  <section class="close-bar">
+    <h2>Close the week</h2>
+    <p id="closeNote">Stalled items carry into next week. Everything else is filed.</p>
+    <button class="close-btn" id="closeWeek" type="button">Close the week</button>
+  </section>
+
+  <section class="past" id="past" hidden>
+    <h2>Weeks filed</h2>
+    <div id="archive"></div>
+  </section>
+
+  <div class="foot">
+    <span class="status mono" id="status" role="status" aria-live="polite"></span>
+    <button class="wipe" id="wipe" type="button">Erase all</button>
+  </div>
+
+</div>
+
+<script>
+const KEY = "carryover:v1";
+
+/* Storage block for the Claude artifact preview.
+   For a self hosted copy, swap this one object for the localStorage
+   version in the brief. Nothing else changes. */
+const store = {
+  async load(){
+    try{
+      const raw = await window.storage.getItem(KEY);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    return null;
+  },
+  async save(d){
+    try{ await window.storage.setItem(KEY, JSON.stringify(d)); }
+    catch(e){ console.error("Could not save", e); }
+  }
+};
+
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const filled = s => (s || "").trim().length > 0;
+
+function isoOf(d){
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function sundayOf(d){
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  x.setDate(x.getDate() + ((7 - x.getDay()) % 7));
+  return isoOf(x);
+}
+function plusWeek(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  const x = new Date(y, m-1, d);
+  x.setDate(x.getDate() + 7);
+  return isoOf(x);
+}
+function pretty(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  return d + " " + MONTHS[m-1];
+}
+
+function blankWeek(ending){
+  return { ending, moved:[], stalled:[], learned:"", dropped:[] };
+}
+
+let data = { current: blankWeek(sundayOf(new Date())), archive: [] };
+
+/* ---------------------------------------------------------------
+   Save
+---------------------------------------------------------------- */
+let saveTimer = null, statusTimer = null;
+function save(msg){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    await store.save(data);
+    say(msg || "Saved");
+  }, 320);
+}
+function say(text){
+  $("status").textContent = text;
+  clearTimeout(statusTimer);
+  statusTimer = setTimeout(() => { $("status").textContent = ""; }, 2200);
+}
+
+/* ---------------------------------------------------------------
+   Lists
+---------------------------------------------------------------- */
+const LISTS = {
+  moved:   { list:"movedList",   none:"movedNone",   tally:"movedTally",   place:"What moved" },
+  stalled: { list:"stalledList", none:"stalledNone", tally:"stalledTally", place:"What is stuck" },
+  dropped: { list:"droppedList", none:"droppedNone", tally:"droppedTally", place:"What you are letting go" }
+};
+
+function fit(ta){
+  ta.style.height = "auto";
+  ta.style.height = Math.max(ta.scrollHeight, 26) + "px";
+}
+
+function renderList(which){
+  const cfg = LISTS[which];
+  const host = $(cfg.list);
+  const arr = data.current[which];
+  host.textContent = "";
+
+  arr.forEach((item, i) => {
+    const row = document.createElement("div");
+    row.className = "row " + which;
+    const age = item.age || 1;
+    if(which === "stalled" && age >= 3) row.classList.add("old");
+
+    const bullet = document.createElement("span");
+    bullet.className = "bullet";
+    bullet.setAttribute("aria-hidden","true");
+    row.appendChild(bullet);
+
+    const cell = document.createElement("div");
+    cell.className = "cell";
+
+    const input = document.createElement("textarea");
+    input.className = "entry";
+    input.rows = 1;
+    input.value = item.text;
+    input.placeholder = cfg.place;
+    input.setAttribute("aria-label", which + " item " + (i + 1));
+    input.addEventListener("input", e => {
+      item.text = e.target.value;
+      fit(input);
+      tally(which);
+      save();
+    });
+    cell.appendChild(input);
+
+    /* the drag tail. One notch per week this item has survived, so an
+       old item is visibly longer than a new one before you read a word. */
+    if(which === "stalled"){
+      const tail = document.createElement("div");
+      tail.className = "tail";
+      for(let n = 0; n < Math.min(age, 12); n++){
+        const notch = document.createElement("span");
+        notch.className = "notch" + (n === age - 1 ? " live" : "");
+        tail.appendChild(notch);
+      }
+      const label = document.createElement("span");
+      label.className = "age";
+      label.textContent = age === 1 ? "new this week" : "dragging " + age + " weeks";
+      tail.appendChild(label);
+      cell.appendChild(tail);
+    }
+
+    row.appendChild(cell);
+
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "x";
+    x.textContent = "×";
+    x.setAttribute("aria-label", "Remove " + which + " item " + (i + 1));
+    x.addEventListener("click", () => {
+      arr.splice(i, 1);
+      renderList(which);
+      save();
+      const next = host.querySelector("textarea");
+      (next || document.querySelector('[data-add="' + which + '"]')).focus();
+    });
+    row.appendChild(x);
+
+    host.appendChild(row);
+  });
+
+  host.querySelectorAll("textarea").forEach(fit);
+  $(cfg.none).hidden = arr.length > 0;
+  tally(which);
+}
+
+function tally(which){
+  const arr = data.current[which].filter(i => filled(i.text));
+  const node = $(LISTS[which].tally);
+  if(which === "stalled"){
+    const old = arr.filter(i => (i.age || 1) >= 3).length;
+    node.textContent = arr.length ? arr.length + (old ? ", " + old + " overdue" : "") : "";
+  }else{
+    node.textContent = arr.length ? String(arr.length) : "";
+  }
+  refreshClose();
+}
+
+function anything(){
+  const c = data.current;
+  return c.moved.some(i => filled(i.text)) ||
+         c.stalled.some(i => filled(i.text)) ||
+         c.dropped.some(i => filled(i.text)) ||
+         filled(c.learned);
+}
+
+function refreshClose(){
+  const carry = data.current.stalled.filter(i => filled(i.text)).length;
+  const btn = $("closeWeek");
+  btn.disabled = !anything();
+  $("closeNote").textContent = btn.disabled
+    ? "Log something first, then file the week."
+    : carry === 0
+      ? "Nothing to carry. The week files clean."
+      : carry === 1
+        ? "1 item carries into next week, a week older."
+        : carry + " items carry into next week, a week older.";
+}
+
+/* ---------------------------------------------------------------
+   Archive
+---------------------------------------------------------------- */
+function renderArchive(){
+  const host = $("archive");
+  host.textContent = "";
+  $("past").hidden = data.archive.length === 0;
+
+  data.archive.slice().reverse().forEach(week => {
+    const box = document.createElement("details");
+    box.className = "week";
+
+    const head = document.createElement("summary");
+    const when = document.createElement("span");
+    when.className = "when";
+    when.textContent = pretty(week.ending);
+    head.appendChild(when);
+
+    const figs = document.createElement("span");
+    figs.className = "figs mono";
+    const m = week.moved.filter(i => filled(i.text)).length;
+    const s = week.stalled.filter(i => filled(i.text)).length;
+    const d = week.dropped.filter(i => filled(i.text)).length;
+    figs.innerHTML = "<span><b>" + m + "</b> moved</span>" +
+                     "<span class='s'><b>" + s + "</b> stalled</span>" +
+                     "<span><b>" + d + "</b> dropped</span>";
+    head.appendChild(figs);
+    box.appendChild(head);
+
+    const body = document.createElement("div");
+    body.className = "week-body";
+    section(body, "Moved", week.moved);
+    section(body, "Stalled", week.stalled);
+    if(filled(week.learned)){
+      const h = document.createElement("h3");
+      h.textContent = "Learned";
+      const p = document.createElement("p");
+      p.className = "said";
+      p.textContent = week.learned;
+      body.appendChild(h);
+      body.appendChild(p);
+    }
+    section(body, "Dropped", week.dropped);
+    box.appendChild(body);
+
+    host.appendChild(box);
+  });
+}
+
+function section(host, title, arr){
+  const items = arr.filter(i => filled(i.text));
+  if(!items.length) return;
+  const h = document.createElement("h3");
+  h.textContent = title;
+  host.appendChild(h);
+  const ul = document.createElement("ul");
+  items.forEach(i => {
+    const li = document.createElement("li");
+    li.className = "said";
+    li.textContent = i.text + (title === "Stalled" && (i.age || 1) > 1 ? " (" + i.age + " weeks)" : "");
+    ul.appendChild(li);
+  });
+  host.appendChild(ul);
+}
+
+/* ---------------------------------------------------------------
+   Render
+---------------------------------------------------------------- */
+function renderAll(){
+  $("weekLabel").textContent = pretty(data.current.ending);
+  $("learned").value = data.current.learned;
+  fit($("learned"));
+  Object.keys(LISTS).forEach(renderList);
+  renderArchive();
+  refreshClose();
+}
+
+/* ---------------------------------------------------------------
+   Events
+---------------------------------------------------------------- */
+document.querySelectorAll("[data-add]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const which = btn.dataset.add;
+    data.current[which].push({ id:uid(), text:"", age:1 });
+    renderList(which);
+    const boxes = $(LISTS[which].list).querySelectorAll("textarea");
+    boxes[boxes.length - 1].focus();
+    save();
+  });
+});
+
+$("learned").addEventListener("input", e => {
+  data.current.learned = e.target.value;
+  fit(e.target);
+  refreshClose();
+  save();
+});
+
+$("closeWeek").addEventListener("click", () => {
+  if(!anything()) return;
+  const closing = data.current;
+  ["moved","stalled","dropped"].forEach(k => {
+    closing[k] = closing[k].filter(i => filled(i.text));
+  });
+  data.archive.push(closing);
+
+  const next = blankWeek(plusWeek(closing.ending));
+  next.stalled = closing.stalled.map(i => ({ id:uid(), text:i.text, age:(i.age || 1) + 1 }));
+  data.current = next;
+
+  renderAll();
+  save(next.stalled.length
+    ? "Week filed. " + next.stalled.length + (next.stalled.length === 1 ? " item carried." : " items carried.")
+    : "Week filed.");
+  window.scrollTo({ top:0, behavior:"smooth" });
+});
+
+let armed = false, armTimer = null;
+$("wipe").addEventListener("click", () => {
+  const btn = $("wipe");
+  if(!armed){
+    armed = true;
+    btn.textContent = "Press again";
+    btn.classList.add("armed");
+    armTimer = setTimeout(disarm, 4000);
+    return;
+  }
+  clearTimeout(armTimer);
+  disarm();
+  data = { current: blankWeek(sundayOf(new Date())), archive: [] };
+  renderAll();
+  save("Erased");
+});
+function disarm(){
+  armed = false;
+  $("wipe").textContent = "Erase all";
+  $("wipe").classList.remove("armed");
+}
+
+/* ---------------------------------------------------------------
+   Boot
+---------------------------------------------------------------- */
+(async function init(){
+  const saved = await store.load();
+  if(saved && saved.current){
+    data = {
+      current: Object.assign(blankWeek(sundayOf(new Date())), saved.current),
+      archive: Array.isArray(saved.archive) ? saved.archive : []
+    };
+    ["moved","stalled","dropped"].forEach(k => {
+      if(!Array.isArray(data.current[k])) data.current[k] = [];
+    });
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
