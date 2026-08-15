@@ -40,7 +40,7 @@ The wordmark is already a single text node in each file, and the palette is alre
 
 ### 2. Em dashes in section 6 of the brief
 
-The four original entries in section 6 use an em dash in their headings, for example ``### 1. `blueprint.html` — daily habits``. That collides with hard rule 1, which bans em dashes in this and any other document. The rule about reproducing supplied copy verbatim, rule 4, says not to silently change it, so it was left alone and flagged instead. The eight entries added in this batch use a comma in the same position, so section 6 currently reads inconsistently. Normalising the four originals to commas is a one line decision for the owner of the brief.
+The four original entries in section 6 use an em dash in their headings, between the file name and the label, as in the `blueprint.html` heading. That collides with hard rule 1, which bans em dashes in this and any other document. The rule about reproducing supplied copy verbatim, rule 4, says not to silently change it, so it was left alone and flagged instead. The eight entries added in this batch use a comma in the same position, so section 6 currently reads inconsistently. Normalising the four originals to commas is a one line decision for the owner of the brief.
 
 ---
 
